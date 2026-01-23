@@ -4,6 +4,7 @@ Modernes **Tablet- & Mobile-First Frontend** auf Basis von **Nuxt 4 / Vue 3**,
 entwickelt als modulare Oberfläche für ein **API-Platform (Hydra / JSON-LD) Backend**.
 
 Der Fokus liegt auf:
+
 - sauberer Architektur
 - strikter Typisierung
 - sehr gute Developer Experience
@@ -27,9 +28,9 @@ Der Fokus liegt auf:
 - Mobile-First UI
 - modulare API-Anbindung
 - klare Trennung von
-    - API-Client
-    - Services
-    - Views / Components
+  - API-Client
+  - Services
+  - Views / Components
 - konsequente statische Analyse & Clean Code
 - reproduzierbare Dev- & CI-Workflows
 
