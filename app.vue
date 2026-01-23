@@ -1,12 +1,7 @@
+<script setup lang="ts"></script>
 <template>
-  <div id="app">
-    <RouterView />
-  </div>
+  <NuxtPage />
 </template>
-
-<script setup lang="ts">
-import { RouterView } from 'vue-router'
-</script>
 
 <style>
 * {
@@ -20,7 +15,7 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-#app {
+#__nuxt {
   min-height: 100vh;
 }
 </style>
