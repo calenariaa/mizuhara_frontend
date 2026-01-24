@@ -34,6 +34,9 @@ const closeMenu = () => menu.close()
 
 .appMain {
   flex: 1;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: hidden;
   background: var(--color-bg-light);
   padding: 16px;
 }
