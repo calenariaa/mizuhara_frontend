@@ -32,22 +32,21 @@ import { computed } from 'vue'
 
 import { useI18n } from '#imports'
 
+type LocaleCode = 'de' | 'en'
+
 const emit = defineEmits<{ (e: 'toggle-menu'): void }>()
 
-const { t, locale, locales, setLocale } = useI18n()
+const { t, locale, setLocale } = useI18n()
 
-type LocaleCode = typeof locale.value
-type LocaleEntry = { code: LocaleCode; name?: string }
-
-const localeOptions = computed(() => {
-  return (locales.value as readonly LocaleEntry[]).map((l) => ({
-    code: l.code,
-    label: l.name ?? String(l.code).toUpperCase(),
-  }))
-})
+const localeOptions = computed(() =>
+  (['en', 'de'] as const).map((code) => ({
+    code,
+    label: t(`locales.${code}`),
+  })),
+)
 
 const selectedLocale = computed<LocaleCode>({
-  get: () => locale.value,
+  get: () => locale.value as LocaleCode,
   set: (code) => {
     void setLocale(code)
   },
@@ -63,17 +62,17 @@ const selectedLocale = computed<LocaleCode>({
   color: var(--color-bg-white);
   background: linear-gradient(
     to bottom,
-    rgba(192, 132, 252, 1) 0%,
-    rgba(192, 132, 252, 0.9) 10%,
-    rgba(192, 132, 252, 0.8) 20%,
-    rgba(192, 132, 252, 0.7) 30%,
-    rgba(192, 132, 252, 0.6) 40%,
-    rgba(192, 132, 252, 0.5) 50%,
-    rgba(192, 132, 252, 0.4) 60%,
-    rgba(192, 132, 252, 0.3) 70%,
-    rgba(192, 132, 252, 0.2) 80%,
-    rgba(192, 132, 252, 0.1) 90%,
-    rgba(192, 132, 252, 0) 100%
+    rgb(from var(--color-primary) r g b / 1) 0%,
+    rgb(from var(--color-primary) r g b / 0.9) 10%,
+    rgb(from var(--color-primary) r g b / 0.8) 20%,
+    rgb(from var(--color-primary) r g b / 0.7) 30%,
+    rgb(from var(--color-primary) r g b / 0.6) 40%,
+    rgb(from var(--color-primary) r g b / 0.5) 50%,
+    rgb(from var(--color-primary) r g b / 0.4) 60%,
+    rgb(from var(--color-primary) r g b / 0.3) 70%,
+    rgb(from var(--color-primary) r g b / 0.2) 80%,
+    rgb(from var(--color-primary) r g b / 0.1) 90%,
+    rgb(from var(--color-primary) r g b / 0) 100%
   );
 }
 
@@ -113,7 +112,7 @@ const selectedLocale = computed<LocaleCode>({
 }
 
 .burger:active {
-  background: rgba(255, 255, 255, 0.18);
+  background: rgb(255 255 255 / 0.18);
 }
 
 .burger:active .burgerIcon {
@@ -134,8 +133,8 @@ const selectedLocale = computed<LocaleCode>({
 .langSelect {
   height: 36px;
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgb(255 255 255 / 0.28);
+  background: rgb(255 255 255 / 0.16);
   color: var(--color-bg-white);
   padding: 0 10px;
   cursor: pointer;
@@ -150,6 +149,6 @@ const selectedLocale = computed<LocaleCode>({
 }
 
 .langSelect:focus {
-  border-color: rgba(255, 255, 255, 0.55);
+  border-color: rgb(255 255 255 / 0.55);
 }
 </style>

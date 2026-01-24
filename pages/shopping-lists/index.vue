@@ -1,7 +1,10 @@
 <script setup lang="ts">
-import type { ShoppingListCollection } from '~/types/api/shoppingList/shoppingListCollection'
+import type { ShoppingListCollection } from '@/types/api/shoppingList/shoppingListCollection'
 
-import { shoppingListCollectionService } from '~/modules/shoppingList/services/shoppingListCollectionService'
+import { useI18n } from '#imports'
+import { shoppingListCollectionService } from '@/modules/shoppingList/services/shoppingListCollectionService'
+
+const { t } = useI18n()
 
 const collections = ref<ShoppingListCollection[]>([])
 const error = ref<string | null>(null)
@@ -9,8 +12,8 @@ const pending = ref(false)
 
 const listCountsByCollection = computed(() => {
   const map = new Map<number, number>()
-  for (const c of collections.value) {
-    map.set(c.id, (c.shoppingLists ?? []).length)
+  for (const collection of collections.value) {
+    map.set(collection.id, (collection.shoppingLists ?? []).length)
   }
   return map
 })
@@ -18,10 +21,11 @@ const listCountsByCollection = computed(() => {
 const loadData = async (): Promise<void> => {
   pending.value = true
   error.value = null
+
   try {
     collections.value = await shoppingListCollectionService().getAll()
-  } catch (e) {
-    error.value = e instanceof Error ? e.message : 'Unknown error'
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : t('errors.unknown')
     collections.value = []
   } finally {
     pending.value = false
@@ -37,15 +41,15 @@ onMounted(() => {
   <div class="page">
     <header class="header">
       <div class="titleWrap">
-        <h1 class="h1">Shopping Collections</h1>
-        <p class="subtitle">Collections</p>
+        <h1 class="h1">{{ t('shoppingLists.collections.title') }}</h1>
+        <p class="subtitle">{{ t('shoppingLists.collections.subtitle') }}</p>
       </div>
 
       <button
         class="refresh"
         type="button"
         :disabled="pending"
-        aria-label="Neu laden"
+        :aria-label="t('shoppingLists.collections.actions.refreshAria')"
         @click="loadData"
       >
         <Icon :name="pending ? 'ph:spinner-gap' : 'ph:arrow-clockwise'" class="refreshIcon" />
@@ -53,36 +57,38 @@ onMounted(() => {
     </header>
 
     <div v-if="error" class="error">
-      <div class="errorTitle">Fehler</div>
+      <div class="errorTitle">{{ t('shoppingLists.state.errorTitle') }}</div>
       <div class="errorMsg">{{ error }}</div>
-      <button class="retry" type="button" @click="loadData">Retry</button>
+      <button class="retry" type="button" @click="loadData">
+        {{ t('shoppingLists.state.retry') }}
+      </button>
     </div>
 
     <div v-else-if="pending" class="loadingCard">
-      <div class="loadingTitle">Lade Collections…</div>
-      <div class="loadingSub">Collections werden abgeholt.</div>
+      <div class="loadingTitle">{{ t('shoppingLists.collections.state.loadingTitle') }}</div>
+      <div class="loadingSub">{{ t('shoppingLists.collections.state.loadingSubtitle') }}</div>
     </div>
 
     <div v-else class="grid">
-      <article v-for="c in collections" :key="c.id" class="card">
+      <article v-for="collection in collections" :key="collection.id" class="card">
         <div class="cardHeader">
-          <div class="cardTitle">{{ c.name }}</div>
-          <div class="badge">{{ listCountsByCollection.get(c.id) ?? 0 }}</div>
+          <div class="cardTitle">{{ collection.name }}</div>
+          <div class="badge">{{ listCountsByCollection.get(collection.id) ?? 0 }}</div>
         </div>
 
         <div class="actions">
-          <NuxtLink class="linkPrimary" :to="`/shopping-lists/collections/${c.id}`">
-            Collection öffnen
+          <NuxtLink class="linkPrimary" :to="`/shopping-lists/collections/${collection.id}`">
+            {{ t('shoppingLists.collections.actions.openCollection') }}
           </NuxtLink>
 
-          <span v-if="(c.shoppingLists?.length ?? 0) === 0" class="mutedSmall">
-            Keine Listen in dieser Collection
+          <span v-if="(collection.shoppingLists?.length ?? 0) === 0" class="mutedSmall">
+            {{ t('shoppingLists.collections.empty.noListsInCollection') }}
           </span>
         </div>
       </article>
 
-      <div v-if="(collections?.length ?? 0) === 0" class="empty">
-        <div class="emptyTitle">Keine Collections</div>
+      <div v-if="collections.length === 0" class="empty">
+        <div class="emptyTitle">{{ t('shoppingLists.collections.empty.noCollectionsTitle') }}</div>
       </div>
     </div>
   </div>
@@ -208,14 +214,6 @@ onMounted(() => {
   color: var(--color-text-primary);
 }
 
-.cardDesc {
-  margin: 0;
-  color: var(--color-text-secondary);
-  font-size: 13px;
-  line-height: 1.35;
-  min-height: 34px;
-}
-
 .actions {
   display: flex;
   align-items: center;
@@ -237,35 +235,6 @@ onMounted(() => {
 
 .linkPrimary:hover {
   background: var(--color-primary-soft);
-}
-
-.details {
-  border-top: 1px solid var(--color-border);
-  padding-top: 8px;
-}
-
-.summary {
-  cursor: pointer;
-  font-weight: 800;
-  font-size: 12px;
-  color: var(--color-text-secondary);
-}
-
-.debug {
-  margin-top: 8px;
-  font-size: 12px;
-  color: var(--color-text-secondary);
-  display: grid;
-  gap: 4px;
-}
-
-.k {
-  font-weight: 800;
-  color: var(--color-text-primary);
-}
-
-.muted {
-  opacity: 0.7;
 }
 
 .mutedSmall {

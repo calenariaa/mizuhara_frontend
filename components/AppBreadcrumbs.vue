@@ -1,13 +1,15 @@
 <script setup lang="ts">
+import { useI18n } from '#imports'
+
 type Crumb = { label: string; to?: string }
 
-defineProps<{
-  items: Crumb[]
-}>()
+defineProps<{ items: Crumb[] }>()
+
+const { t } = useI18n()
 </script>
 
 <template>
-  <nav class="wrap" aria-label="Breadcrumb">
+  <nav class="wrap" :aria-label="t('a11y.breadcrumb')">
     <ol class="list">
       <li v-for="(c, i) in items" :key="`${c.label}-${i}`" class="item">
         <NuxtLink v-if="c.to" class="link" :to="c.to">{{ c.label }}</NuxtLink>

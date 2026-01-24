@@ -25,7 +25,7 @@
 
         <nav class="nav">
           <div v-for="cat in categories" :key="cat.id" class="navGroup">
-            <div class="navGroupTitle">{{ resolveLabel(cat.label) }}</div>
+            <div class="navGroupTitle">{{ t(cat.label) }}</div>
 
             <div class="navGroupLinks">
               <NuxtLink
@@ -35,7 +35,7 @@
                 :to="localePath(item.to)"
                 @click="emit('close')"
               >
-                {{ resolveLabel(item.label) }}
+                {{ t(item.label) }}
               </NuxtLink>
             </div>
           </div>
@@ -46,10 +46,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
 
 import { useI18n, useLocalePath } from '#imports'
-import { navCategories, navItems, type NavCategoryId } from '~/config/navigation'
+import { navCategories, navItems, type NavCategoryId, type NavItem } from '@/config/navigation'
+
+const props = defineProps<{ open: boolean }>()
+const emit = defineEmits<{ (e: 'close'): void }>()
 
 const { t } = useI18n()
 const localePath = useLocalePath()
@@ -57,22 +60,14 @@ const localePath = useLocalePath()
 const categories = navCategories
 
 const itemsByCategory = computed(() => {
-  const map = new Map<NavCategoryId, typeof navItems>()
+  const map = new Map<NavCategoryId, NavItem[]>()
   for (const item of navItems) {
-    const arr = map.get(item.category) ?? []
-    arr.push(item)
-    map.set(item.category, arr)
+    const items = map.get(item.category) ?? []
+    items.push(item)
+    map.set(item.category, items)
   }
   return map
 })
-
-const resolveLabel = (keyOrLabel: string): string => {
-  const translated = t(keyOrLabel)
-  return translated === keyOrLabel ? keyOrLabel : translated
-}
-
-const props = defineProps<{ open: boolean }>()
-const emit = defineEmits<{ (e: 'close'): void }>()
 
 watch(
   () => props.open,
@@ -83,19 +78,18 @@ watch(
   { immediate: true },
 )
 
-const onKeydown = (e: KeyboardEvent) => {
-  if (!props.open) return
-  if (e.key === 'Escape') emit('close')
-}
+onMounted(() => {
+  const onKeydown = (e: KeyboardEvent) => {
+    if (!props.open) return
+    if (e.key === 'Escape') emit('close')
+  }
 
-if (import.meta.client) {
   window.addEventListener('keydown', onKeydown)
-}
 
-onBeforeUnmount(() => {
-  if (!import.meta.client) return
-  window.removeEventListener('keydown', onKeydown)
-  document.body.style.overflow = ''
+  onBeforeUnmount(() => {
+    window.removeEventListener('keydown', onKeydown)
+    document.body.style.overflow = ''
+  })
 })
 </script>
 
@@ -104,7 +98,7 @@ onBeforeUnmount(() => {
   position: fixed;
   inset: 0;
   z-index: 60;
-  background: rgba(15, 23, 42, 0.42);
+  background: var(--overlay);
   backdrop-filter: blur(2px);
 }
 
@@ -154,7 +148,7 @@ onBeforeUnmount(() => {
 }
 
 .close:active {
-  background: rgba(15, 23, 42, 0.06);
+  background: rgb(from var(--color-text-primary) r g b / 0.06);
 }
 
 .nav {

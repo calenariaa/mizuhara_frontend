@@ -1,19 +1,21 @@
 <script setup lang="ts">
-import type { ProductInformation } from '~/types/api/products/productInformation'
-import type { ShoppingList } from '~/types/api/shoppingList/shoppingList'
-import type { ShoppingListCollection } from '~/types/api/shoppingList/shoppingListCollection'
-import type { ShoppingListEntry } from '~/types/api/shoppingList/shoppingListEntry'
-import type { User } from '~/types/api/users/user'
+import type { ProductInformation } from '@/types/api/products/productInformation'
+import type { ShoppingList } from '@/types/api/shoppingList/shoppingList'
+import type { ShoppingListCollection } from '@/types/api/shoppingList/shoppingListCollection'
+import type { ShoppingListEntry } from '@/types/api/shoppingList/shoppingListEntry'
+import type { User } from '@/types/api/users/user'
 
-import AppBreadcrumbs from '~/components/AppBreadcrumbs.vue'
-import { useIriEntityCache } from '~/composables/api/useIriEntityCache'
-import { productInformationService } from '~/modules/catalog/services/productInformationService'
-import { shoppingListCollectionService } from '~/modules/shoppingList/services/shoppingListCollectionService'
-import { shoppingListEntryService } from '~/modules/shoppingList/services/shoppingListEntryService'
-import { shoppingListService } from '~/modules/shoppingList/services/shoppingListService'
-import { userService } from '~/modules/user/services/userService'
+import { useI18n } from '#imports'
+import AppBreadcrumbs from '@/components/AppBreadcrumbs.vue'
+import { useIriEntityCache } from '@/composables/api/useIriEntityCache'
+import { productInformationService } from '@/modules/catalog/services/productInformationService'
+import { shoppingListCollectionService } from '@/modules/shoppingList/services/shoppingListCollectionService'
+import { shoppingListEntryService } from '@/modules/shoppingList/services/shoppingListEntryService'
+import { shoppingListService } from '@/modules/shoppingList/services/shoppingListService'
+import { userService } from '@/modules/user/services/userService'
 
 const route = useRoute()
+const { t } = useI18n()
 
 const collectionId = computed(() => Number(route.params.collectionId))
 const listId = computed(() => Number(route.params.listId))
@@ -91,7 +93,7 @@ const load = async (): Promise<void> => {
 
     currentUserIri.value = users.value[0]?.['@id'] ?? ''
   } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Unknown error'
+    error.value = err instanceof Error ? err.message : t('errors.unknown')
     collection.value = null
     list.value = null
     entries.value = []
@@ -108,9 +110,11 @@ const load = async (): Promise<void> => {
 watch([collectionId, listId], () => void load(), { immediate: true })
 
 const breadcrumbs = computed(() => [
-  { label: 'Collections Lists', to: '/shopping-lists' },
+  { label: t('shoppingLists.breadcrumbs.overview'), to: '/shopping-lists' },
   {
-    label: collection.value?.name ?? `Collection ${collectionId.value}`,
+    label:
+      collection.value?.name ??
+      t('shoppingLists.list.breadcrumbs.collectionFallback', { id: collectionId.value }),
     to: `/shopping-lists/collections/${collectionId.value}`,
   },
   { label: list.value?.name ?? 'Liste' },
@@ -142,7 +146,7 @@ const removeEntry = async (entry: ShoppingListEntry): Promise<void> => {
     await shoppingListEntryService().remove(path)
   } catch (err) {
     entries.value = prev
-    error.value = err instanceof Error ? err.message : 'Unknown error'
+    error.value = err instanceof Error ? err.message : t('errors.unknown')
   }
 }
 
@@ -156,7 +160,7 @@ const toggleAcquired = async (entry: ShoppingListEntry): Promise<void> => {
     await shoppingListEntryService().setAcquired(path, entry.acquired)
   } catch (err) {
     entry.acquired = prev
-    error.value = err instanceof Error ? err.message : 'Unknown error'
+    error.value = err instanceof Error ? err.message : t('errors.unknown')
   }
 }
 
@@ -183,11 +187,14 @@ const addEntry = async (): Promise<void> => {
     selectedProductIri.value = ''
     quantity.value = null
   } catch (err) {
-    addError.value = err instanceof Error ? err.message : 'Unknown error'
+    addError.value = err instanceof Error ? err.message : t('errors.unknown')
   } finally {
     adding.value = false
   }
 }
+const entryCountLabel = computed(() =>
+  t('shoppingLists.list.header.entryCount', { count: rows.value.length }),
+)
 </script>
 
 <template>
@@ -197,14 +204,16 @@ const addEntry = async (): Promise<void> => {
     <header class="header">
       <div class="titleWrap">
         <h1 class="h1">{{ list?.name ?? 'Shopping List' }}</h1>
-        <p class="subtitle">{{ rows.length }} Einträge</p>
+        <p class="subtitle">{{ entryCountLabel }}</p>
       </div>
     </header>
 
     <div v-if="error" class="stateCard">
-      <div class="stateTitle">Fehler</div>
+      <div class="stateTitle">{{ t('shoppingLists.state.errorTitle') }}</div>
       <div class="stateMsg">{{ error }}</div>
-      <button class="retry" type="button" @click="load">Retry</button>
+      <button class="retry" type="button" @click="load">
+        {{ t('shoppingLists.state.retry') }}
+      </button>
     </div>
 
     <div v-else-if="pending" class="stack">
@@ -222,14 +231,14 @@ const addEntry = async (): Promise<void> => {
     <div v-else class="stack">
       <section class="card">
         <div class="cardHeader">
-          <div class="cardTitle">Eintrag hinzufügen</div>
+          <div class="cardTitle">{{ t('shoppingLists.list.addEntry.title') }}</div>
         </div>
 
         <div class="formRow">
           <label class="label">
             Produkt
             <select v-model="selectedProductIri" class="select" :disabled="adding">
-              <option value="">Bitte wählen…</option>
+              <option value="">{{ t('shoppingLists.list.addEntry.productPlaceholder') }}</option>
               <option v-for="p in products" :key="p['@id'] ?? p.name" :value="p['@id']">
                 {{ p.name }}
               </option>
@@ -246,7 +255,7 @@ const addEntry = async (): Promise<void> => {
               min="1"
               step="1"
               :disabled="adding"
-              placeholder="z.B. 2"
+              :placeholder="t('shoppingLists.list.addEntry.quantityPlaceholder')"
             />
           </label>
 
@@ -266,24 +275,28 @@ const addEntry = async (): Promise<void> => {
             :disabled="adding || !selectedProductIri"
             @click="addEntry"
           >
-            {{ adding ? 'Hinzufügen…' : 'Hinzufügen' }}
+            {{
+              adding
+                ? t('shoppingLists.list.addEntry.addingButton')
+                : t('shoppingLists.list.addEntry.addButton')
+            }}
           </button>
         </div>
 
         <div v-if="addError" class="hintError">{{ addError }}</div>
-        <div v-else class="hint">Produkt wird über IRI aufgelöst, User ebenfalls.</div>
+        <div v-else class="hint">{{ t('shoppingLists.list.addEntry.hint') }}</div>
       </section>
 
       <section class="card">
         <div class="cardHeader">
-          <div class="cardTitle">Inhalt</div>
+          <div class="cardTitle">{{ t('shoppingLists.list.content.title') }}</div>
           <div class="pill">{{ rows.length }}</div>
         </div>
 
         <div v-if="rows.length === 0" class="empty">
-          <div class="emptyTitle">Noch keine Einträge</div>
+          <div class="emptyTitle">{{ t('shoppingLists.list.content.emptyTitle') }}</div>
           <div class="emptySub">
-            Füge oben ein Produkt hinzu, dann erscheint es hier in der Tabelle.
+            {{ t('shoppingLists.list.content.emptySubtitle') }}
           </div>
         </div>
 
@@ -292,10 +305,10 @@ const addEntry = async (): Promise<void> => {
             <thead>
               <tr>
                 <th class="thCheck">✓</th>
-                <th>Produkt</th>
-                <th class="thQty">Quantity</th>
-                <th>Added by</th>
-                <th class="thActions"/>
+                <th>{{ t('shoppingLists.list.content.table.product') }}</th>
+                <th class="thQty">{{ t('shoppingLists.list.content.table.quantity') }}</th>
+                <th>{{ t('shoppingLists.list.content.table.addedBy') }}</th>
+                <th class="thActions" />
               </tr>
             </thead>
             <tbody>
@@ -309,7 +322,9 @@ const addEntry = async (): Promise<void> => {
                     class="checkBtn"
                     type="button"
                     :aria-label="
-                      r.acquired ? 'Als nicht gekauft markieren' : 'Als gekauft markieren'
+                      r.acquired
+                        ? t('shoppingLists.list.content.aria.markNotAcquired')
+                        : t('shoppingLists.list.content.aria.markAcquired')
                     "
                     @click="toggleAcquired(entries[idx])"
                   >
@@ -329,7 +344,7 @@ const addEntry = async (): Promise<void> => {
                   <button
                     class="iconBtn"
                     type="button"
-                    aria-label="Eintrag löschen"
+                    :aria-label="t('shoppingLists.list.content.aria.deleteEntry')"
                     @click="removeEntry(entries[idx])"
                   >
                     <Icon name="lucide:x" size="18" />

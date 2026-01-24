@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import type { ShoppingList } from '~/types/api/shoppingList/shoppingList'
-import type { ShoppingListCollection } from '~/types/api/shoppingList/shoppingListCollection'
+import type { ShoppingList } from '@/types/api/shoppingList/shoppingList'
+import type { ShoppingListCollection } from '@/types/api/shoppingList/shoppingListCollection'
 
-import AppBreadcrumbs from '~/components/AppBreadcrumbs.vue'
-import { useApiClient } from '~/composables/api/useApiClient'
-import { shoppingListCollectionService } from '~/modules/shoppingList/services/shoppingListCollectionService'
+import { useI18n } from '#imports'
+import AppBreadcrumbs from '@/components/AppBreadcrumbs.vue'
+import { useApiClient } from '@/composables/api/useApiClient'
+import { shoppingListCollectionService } from '@/modules/shoppingList/services/shoppingListCollectionService'
 
 type HasIri = { '@id'?: string }
 
@@ -17,6 +18,7 @@ const collection = ref<ShoppingListCollection | null>(null)
 const lists = ref<ShoppingList[]>([])
 const pending = ref(false)
 const error = ref<string | null>(null)
+const { t } = useI18n()
 
 const { getItem } = useApiClient()
 
@@ -33,7 +35,7 @@ const load = async (): Promise<void> => {
     const loaded = await Promise.all(iris.map((iri) => getItem<ShoppingList>(iri)))
     lists.value = loaded
   } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Unknown error'
+    error.value = err instanceof Error ? err.message : t('errors.unknown')
     collection.value = null
     lists.value = []
   } finally {
@@ -44,9 +46,12 @@ const load = async (): Promise<void> => {
 watch(collectionId, () => void load(), { immediate: true })
 
 const breadcrumbs = computed(() => [
-  { label: 'Shopping Lists', to: '/shopping-lists' },
+  { label: t('shoppingLists.breadcrumbs.overview'), to: '/shopping-lists' },
   { label: collection.value?.name ?? 'Collection' },
 ])
+const listCountLabel = computed(() =>
+  t('shoppingLists.collection.listCount', { count: lists.value.length }),
+)
 </script>
 
 <template>
@@ -56,14 +61,16 @@ const breadcrumbs = computed(() => [
     <header class="header">
       <div class="titleWrap">
         <h1 class="h1">{{ collection?.name ?? 'Collection' }}</h1>
-        <p class="subtitle">{{ lists.length }} Listen</p>
+        <p class="subtitle">{{ listCountLabel }}</p>
       </div>
     </header>
 
     <div v-if="error" class="stateCard">
-      <div class="stateTitle">Fehler</div>
+      <div class="stateTitle">{{ t('shoppingLists.state.errorTitle') }}</div>
       <div class="stateMsg">{{ error }}</div>
-      <button class="retry" type="button" @click="load">Retry</button>
+      <button class="retry" type="button" @click="load">
+        {{ t('shoppingLists.state.retry') }}
+      </button>
     </div>
 
     <div v-else-if="pending" class="stack">
@@ -92,8 +99,8 @@ const breadcrumbs = computed(() => [
       </NuxtLink>
 
       <div v-if="lists.length === 0" class="empty">
-        <div class="emptyTitle">Keine Listen in dieser Collection</div>
-        <div class="emptySub">Lege im Backend eine ShoppingList an und verknüpfe sie.</div>
+        <div class="emptyTitle">{{ t('shoppingLists.collection.empty.title') }}</div>
+        <div class="emptySub">{{ t('shoppingLists.collection.empty.subtitle') }}</div>
       </div>
     </div>
   </div>

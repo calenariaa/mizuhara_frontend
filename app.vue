@@ -1,27 +1,16 @@
+<script setup lang="ts">
+import { useHead, useI18n } from '#imports'
+
+const { t } = useI18n()
+
+useHead(() => ({
+  title: t('app.title'),
+  meta: [{ name: 'description', content: t('app.description') }],
+}))
+</script>
+
 <template>
   <NuxtLayout>
     <NuxtPage />
   </NuxtLayout>
 </template>
-
-<style>
-* {
-  box-sizing: border-box;
-}
-
-html,
-body {
-  height: 100%;
-}
-
-body {
-  margin: 0;
-  padding: 0;
-  background: #ffffff;
-  font-family: var(--font-sans), serif;
-}
-
-#__nuxt {
-  min-height: 100vh;
-}
-</style>

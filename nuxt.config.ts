@@ -7,24 +7,20 @@ export default defineNuxtConfig({
     },
   },
   modules: ['@nuxt/eslint', '@pinia/nuxt', '@nuxt/icon', '@nuxtjs/i18n'],
-  css: ['@/assets/styles/theme.css', '@/assets/styles/fonts.css'],
+  css: ['@/assets/styles/theme.css', '@/assets/styles/fonts.css', '@/assets/styles/base.css'],
   app: {
     head: {
-      title: 'Mizuhara · Smart Home',
-      meta: [
-        { name: 'description', content: 'Smart Home Smart' },
-        { name: 'theme-color', content: '#c084fc' },
-      ],
+      meta: [{ name: 'theme-color', content: '#c084fc' }],
       link: [{ rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }],
     },
   },
   i18n: {
     langDir: 'locales',
     locales: [
-      { code: 'de', name: 'Deutsch', file: 'de.json' },
-      { code: 'en', name: 'English', file: 'en.json' },
+      { code: 'en', file: 'en.json' },
+      { code: 'de', file: 'de.json' },
     ],
-    defaultLocale: 'de',
+    defaultLocale: 'en',
     strategy: 'prefix_except_default',
   },
 })

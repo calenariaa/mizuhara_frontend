@@ -10,15 +10,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { storeToRefs } from 'pinia'
 
-import AppDrawer from '~/components/layout/AppDrawer.vue'
-import AppFooter from '~/components/layout/AppFooter.vue'
-import AppHeader from '~/components/layout/AppHeader.vue'
-import { useMenu } from '~/stores/menu'
+import AppDrawer from '@/components/layout/AppDrawer.vue'
+import AppFooter from '@/components/layout/AppFooter.vue'
+import AppHeader from '@/components/layout/AppHeader.vue'
+import { useMenu } from '@/stores/menu'
 
 const menu = useMenu()
-const isMenuOpen = computed(() => menu.isOpen)
+const { isOpen: isMenuOpen } = storeToRefs(menu)
 
 const toggleMenu = () => menu.toggle()
 const closeMenu = () => menu.close()

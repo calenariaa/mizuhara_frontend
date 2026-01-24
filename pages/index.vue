@@ -1,7 +1,17 @@
+<script setup lang="ts">
+import { useHead, useI18n } from '#imports'
+
+const { t } = useI18n()
+
+useHead(() => ({
+  title: t('home.meta.title'),
+}))
+</script>
+
 <template>
   <div class="page">
-    <h1 class="h1">Nuxt läuft wie es soll yey</h1>
-    <p class="p">Hallo Micha</p>
+    <h1 class="h1">{{ t('home.title') }}</h1>
+    <p class="p">{{ t('home.subtitle') }}</p>
   </div>
 </template>
 
