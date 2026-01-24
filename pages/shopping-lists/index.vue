@@ -37,8 +37,8 @@ onMounted(() => {
   <div class="page">
     <header class="header">
       <div class="titleWrap">
-        <h1 class="h1">Shopping Lists</h1>
-        <p class="subtitle">Collections & Listen – erster MVP-Einstieg.</p>
+        <h1 class="h1">Shopping Collections</h1>
+        <p class="subtitle">Collections</p>
       </div>
 
       <button
@@ -60,7 +60,7 @@ onMounted(() => {
 
     <div v-else-if="pending" class="loadingCard">
       <div class="loadingTitle">Lade Collections…</div>
-      <div class="loadingSub">Hydra Collection wird abgeholt.</div>
+      <div class="loadingSub">Collections werden abgeholt.</div>
     </div>
 
     <div v-else class="grid">
@@ -79,19 +79,10 @@ onMounted(() => {
             Keine Listen in dieser Collection
           </span>
         </div>
-
-        <details class="details">
-          <summary class="summary">Debug</summary>
-          <div class="debug">
-            <div><span class="k">Collection ID:</span> {{ c.id }}</div>
-            <div><span class="k">Listen:</span> {{ c.shoppingLists?.length ?? 0 }}</div>
-          </div>
-        </details>
       </article>
 
       <div v-if="(collections?.length ?? 0) === 0" class="empty">
         <div class="emptyTitle">Keine Collections</div>
-        <div class="emptySub">Lege im Backend testweise eine ShoppingListCollection an.</div>
       </div>
     </div>
   </div>

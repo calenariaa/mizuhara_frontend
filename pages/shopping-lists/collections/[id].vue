@@ -88,7 +88,6 @@ const breadcrumbs = computed(() => [
           <div class="cardHeader">
             <div class="cardTitle">{{ l.name }}</div>
           </div>
-          <div class="mutedSmall">Liste öffnen</div>
         </article>
       </NuxtLink>
 

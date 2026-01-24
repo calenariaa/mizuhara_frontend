@@ -1,19 +1,24 @@
 <script setup lang="ts">
 import type { ProductInformation } from '~/types/api/products/productInformation'
 import type { ShoppingList } from '~/types/api/shoppingList/shoppingList'
+import type { ShoppingListCollection } from '~/types/api/shoppingList/shoppingListCollection'
 import type { ShoppingListEntry } from '~/types/api/shoppingList/shoppingListEntry'
 import type { User } from '~/types/api/users/user'
 
 import AppBreadcrumbs from '~/components/AppBreadcrumbs.vue'
 import { useIriEntityCache } from '~/composables/api/useIriEntityCache'
 import { productInformationService } from '~/modules/catalog/services/productInformationService'
+import { shoppingListCollectionService } from '~/modules/shoppingList/services/shoppingListCollectionService'
 import { shoppingListEntryService } from '~/modules/shoppingList/services/shoppingListEntryService'
 import { shoppingListService } from '~/modules/shoppingList/services/shoppingListService'
 import { userService } from '~/modules/user/services/userService'
 
 const route = useRoute()
+
+const collectionId = computed(() => Number(route.params.collectionId))
 const listId = computed(() => Number(route.params.listId))
 
+const collection = ref<ShoppingListCollection | null>(null)
 const list = ref<ShoppingList | null>(null)
 const entries = ref<ShoppingListEntry[]>([])
 const pending = ref(false)
@@ -65,13 +70,15 @@ const load = async (): Promise<void> => {
   addError.value = null
 
   try {
-    const [l, e, prodList, userList] = await Promise.all([
+    const [c, l, e, prodList, userList] = await Promise.all([
+      shoppingListCollectionService().getById(collectionId.value),
       shoppingListService().getById(listId.value),
       shoppingListEntryService().getByShoppingListId(listId.value),
       productInformationService().getAll(),
       userService().getAll(),
     ])
 
+    collection.value = c
     list.value = l
     entries.value = e
     products.value = prodList
@@ -85,6 +92,7 @@ const load = async (): Promise<void> => {
     currentUserIri.value = users.value[0]?.['@id'] ?? ''
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Unknown error'
+    collection.value = null
     list.value = null
     entries.value = []
     products.value = []
@@ -97,14 +105,16 @@ const load = async (): Promise<void> => {
   }
 }
 
-watch(listId, () => void load(), { immediate: true })
+watch([collectionId, listId], () => void load(), { immediate: true })
 
-const breadcrumbs = computed(() => {
-  return [
-    { label: 'Shopping Lists', to: '/shopping-lists' },
-    { label: list.value?.name ?? 'Liste' },
-  ]
-})
+const breadcrumbs = computed(() => [
+  { label: 'Collections Lists', to: '/shopping-lists' },
+  {
+    label: collection.value?.name ?? `Collection ${collectionId.value}`,
+    to: `/shopping-lists/collections/${collectionId.value}`,
+  },
+  { label: list.value?.name ?? 'Liste' },
+])
 
 const rows = computed(() => {
   return entries.value.map((e) => {
@@ -162,7 +172,7 @@ const addEntry = async (): Promise<void> => {
       shoppingList:
         getIri(list.value as unknown as HasIri) || `/api/shopping_lists/${list.value.id}`,
       productInformation: selectedProductIri.value,
-      quantity: quantity.value || 1,
+      quantity: typeof quantity.value === 'number' ? quantity.value : 1,
       addedBy: currentUserIri.value || undefined,
     })
 
@@ -285,7 +295,7 @@ const addEntry = async (): Promise<void> => {
                 <th>Produkt</th>
                 <th class="thQty">Quantity</th>
                 <th>Added by</th>
-                <th class="thActions">Actions</th>
+                <th class="thActions"/>
               </tr>
             </thead>
             <tbody>
@@ -316,8 +326,13 @@ const addEntry = async (): Promise<void> => {
                 <td class="cellMuted">{{ r.addedBy }}</td>
 
                 <td class="cellActions">
-                  <button class="btnGhost" type="button" @click="removeEntry(entries[idx])">
-                    Löschen
+                  <button
+                    class="iconBtn"
+                    type="button"
+                    aria-label="Eintrag löschen"
+                    @click="removeEntry(entries[idx])"
+                  >
+                    <Icon name="lucide:x" size="18" />
                   </button>
                 </td>
               </tr>
@@ -330,6 +345,24 @@ const addEntry = async (): Promise<void> => {
 </template>
 
 <style scoped>
+.iconBtn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-white);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+}
+
+.iconBtn:hover {
+  background: var(--color-bg-light);
+  color: var(--color-error);
+}
+
 .page {
   max-width: 1080px;
   margin: 0 auto;
@@ -522,7 +555,7 @@ const addEntry = async (): Promise<void> => {
 
 .thActions,
 .cellActions {
-  width: 110px;
+  width: 64px;
 }
 
 .thQty,
