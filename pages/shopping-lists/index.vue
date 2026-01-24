@@ -71,15 +71,11 @@ onMounted(() => {
         </div>
 
         <div class="actions">
-          <NuxtLink
-            v-if="(c.shoppingLists?.length ?? 0) > 0"
-            class="linkPrimary"
-            :to="`/shopping-lists/${(c.shoppingLists?.[0] ?? '').split('/').pop()}`"
-          >
-            Erste Liste öffnen
+          <NuxtLink class="linkPrimary" :to="`/shopping-lists/collections/${c.id}`">
+            Collection öffnen
           </NuxtLink>
 
-          <span v-else class="mutedSmall">Keine Listen in dieser Collection</span>
+          <span class="mutedSmall">{{ listCountsByCollection.get(c.id) ?? 0 }} Listen</span>
         </div>
 
         <details class="details">

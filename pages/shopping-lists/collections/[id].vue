@@ -10,8 +10,8 @@ const collectionId = computed(() => Number(route.params.id))
 
 const collection = ref<ShoppingListCollection | null>(null)
 const lists = ref<ShoppingList[]>([])
-const error = ref<string | null>(null)
 const pending = ref(false)
+const error = ref<string | null>(null)
 
 const load = async (): Promise<void> => {
   pending.value = true
@@ -43,19 +43,19 @@ watch(collectionId, () => void load(), { immediate: true })
       <div class="titleWrap">
         <NuxtLink class="back" to="/shopping-lists">← Zurück</NuxtLink>
         <h1 class="h1">{{ collection?.name ?? 'Collection' }}</h1>
-        <p v-if="collection?.description" class="subtitle">{{ collection.description }}</p>
+        <p class="subtitle">{{ lists.length }} Listen</p>
       </div>
     </header>
 
-    <div v-if="error" class="error">
-      <div class="errorTitle">Fehler</div>
-      <div class="errorMsg">{{ error }}</div>
+    <div v-if="error" class="stateCard">
+      <div class="stateTitle">Fehler</div>
+      <div class="stateMsg">{{ error }}</div>
       <button class="retry" type="button" @click="load">Retry</button>
     </div>
 
-    <div v-else-if="pending" class="loadingCard">
-      <div class="loadingTitle">Lade Listen…</div>
-      <div class="loadingSub">ShoppingLists für diese Collection werden abgeholt.</div>
+    <div v-else-if="pending" class="stateCard">
+      <div class="stateTitle">Lade Listen…</div>
+      <div class="stateMsg">Die ShoppingLists werden vom Backend abgeholt.</div>
     </div>
 
     <div v-else class="grid">
@@ -71,9 +71,9 @@ watch(collectionId, () => void load(), { immediate: true })
         </div>
       </article>
 
-      <div v-if="lists.length === 0" class="empty">
-        <div class="emptyTitle">Keine Listen</div>
-        <div class="emptySub">In dieser Collection sind noch keine ShoppingLists.</div>
+      <div v-if="lists.length === 0" class="stateCard">
+        <div class="stateTitle">Keine Listen</div>
+        <div class="stateMsg">In dieser Collection gibt es noch keine ShoppingLists.</div>
       </div>
     </div>
   </div>
@@ -181,9 +181,7 @@ watch(collectionId, () => void load(), { immediate: true })
   background: var(--color-primary-soft);
 }
 
-.loadingCard,
-.error,
-.empty {
+.stateCard {
   background: var(--color-bg-white);
   border: 1px solid var(--color-border);
   border-radius: 16px;
@@ -191,16 +189,12 @@ watch(collectionId, () => void load(), { immediate: true })
   box-shadow: var(--shadow-elevated);
 }
 
-.loadingTitle,
-.errorTitle,
-.emptyTitle {
+.stateTitle {
   font-weight: 800;
   color: var(--color-text-primary);
 }
 
-.loadingSub,
-.errorMsg,
-.emptySub {
+.stateMsg {
   margin-top: 6px;
   color: var(--color-text-secondary);
   font-size: 13px;

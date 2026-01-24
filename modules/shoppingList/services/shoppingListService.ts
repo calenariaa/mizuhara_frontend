@@ -24,5 +24,13 @@ export function shoppingListService() {
     async create(data: CreateShoppingListBody): Promise<ShoppingList> {
       return post<ShoppingList, CreateShoppingListBody>('/api/shopping_lists', data)
     },
+
+    async getByCollectionId(collectionId: number): Promise<ShoppingList[]> {
+      const collectionIri = `/api/shopping_list_collections/${collectionId}`
+      const data = await getCollection<ShoppingList>('/api/shopping_lists', {
+        shoppingListCollection: collectionIri,
+      })
+      return data.items
+    },
   }
 }

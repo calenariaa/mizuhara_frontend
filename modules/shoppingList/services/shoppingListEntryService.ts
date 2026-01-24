@@ -2,25 +2,16 @@ import type { ShoppingListEntry } from '~/types/api/shoppingList/shoppingListEnt
 
 import { useApiClient } from '~/composables/api/useApiClient'
 
-type CreateShoppingListEntryBody = {
-  shoppingList: string
-  productInformation: string
-  addedBy?: string
-}
-
 export function shoppingListEntryService() {
-  const { post, del } = useApiClient()
+  const { getCollection } = useApiClient()
 
   return {
-    async create(data: CreateShoppingListEntryBody): Promise<ShoppingListEntry> {
-      return post<ShoppingListEntry, CreateShoppingListEntryBody>(
-        '/api/shopping_list_entries',
-        data,
-      )
-    },
-
-    async deleteByIri(iri: string): Promise<void> {
-      await del(iri)
+    async getByShoppingListId(shoppingListId: number): Promise<ShoppingListEntry[]> {
+      const listIri = `/api/shopping_lists/${shoppingListId}`
+      const data = await getCollection<ShoppingListEntry>('/api/shopping_list_entries', {
+        shoppingList: listIri,
+      })
+      return data.items
     },
   }
 }
