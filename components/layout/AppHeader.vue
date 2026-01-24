@@ -2,9 +2,7 @@
   <header class="header">
     <div class="inner">
       <button class="burger" type="button" aria-label="Open menu" @click="$emit('toggle-menu')">
-        <span class="line" />
-        <span class="line" />
-        <span class="line" />
+        <Icon class="burgerIcon" name="ph:list" mode="svg" aria-hidden="true" />
       </button>
 
       <div class="title">
@@ -29,9 +27,14 @@ defineEmits<{
   position: sticky;
   top: 0;
   z-index: 50;
-  background: #1d4ed8;
-  color: #ffffff;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  height: 112px;
+  color: var(--color-bg-white);
+  background: linear-gradient(
+    to bottom,
+    var(--color-primary) 0%,
+    rgba(192, 132, 252, 0.95) 60%,
+    rgba(255, 255, 255, 0) 100%
+  );
 }
 
 .inner {
@@ -54,29 +57,32 @@ defineEmits<{
   cursor: pointer;
 }
 
-.burger:active {
-  background: rgba(255, 255, 255, 0.12);
-}
-
-.line {
-  width: 20px;
-  height: 2px;
-  background: #ffffff;
+.burgerIcon {
+  width: 26px;
+  height: 26px;
   display: block;
-  border-radius: 999px;
+  color: var(--color-bg-white);
+  background: transparent;
 }
 
-.burger .line + .line {
-  margin-top: 4px;
+.burgerIcon svg {
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+  background: transparent;
+}
+
+.burger:active {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.burger:active .burgerIcon {
+  transform: scale(0.95);
 }
 
 .title {
-  font-weight: 700;
-  font-size: 16px;
-  letter-spacing: 0.2px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  font-weight: 800;
+  letter-spacing: 0.3px;
 }
 
 .actions {

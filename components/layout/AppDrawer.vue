@@ -53,10 +53,7 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.45);
-  z-index: 60;
+  background: var(--overlay);
 }
 
 .drawer {
@@ -65,13 +62,13 @@ onBeforeUnmount(() => {
   left: 0;
   height: 100vh;
   width: min(320px, 86vw);
-  background: #ffffff;
+  background: var(--color-bg-white);
   z-index: 70;
   transform: translateX(-100%);
   transition: transform 180ms ease;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.24);
+  box-shadow: var(--shadow-elevated);
 }
 
 .drawer.open {
@@ -84,11 +81,13 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: space-between;
   padding: 0 12px;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-primary-soft);
+  color: var(--color-text-primary);
 }
 
 .drawerTitle {
-  font-weight: 700;
+  font-weight: 800;
   font-size: 16px;
 }
 
@@ -99,10 +98,11 @@ onBeforeUnmount(() => {
   background: transparent;
   border-radius: 10px;
   cursor: pointer;
+  color: var(--color-text-primary);
 }
 
 .close:active {
-  background: #f3f4f6;
+  background: rgba(15, 23, 42, 0.06);
 }
 
 .nav {
@@ -115,11 +115,12 @@ onBeforeUnmount(() => {
   padding: 12px;
   border-radius: 12px;
   text-decoration: none;
-  color: #111827;
-  background: #f3f4f6;
+  color: var(--color-text-primary);
+  background: var(--color-bg-light);
+  border: 1px solid var(--color-border);
 }
 
 .link:hover {
-  background: #e5e7eb;
+  background: var(--color-primary-soft);
 }
 </style>

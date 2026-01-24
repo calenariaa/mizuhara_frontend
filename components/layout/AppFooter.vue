@@ -12,9 +12,20 @@ const year = new Date().getFullYear()
 
 <style scoped>
 .footer {
-  background: #1d4ed8;
-  color: #ffffff;
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  background: var(--color-primary);
+  color: var(--color-bg-white);
+  box-shadow: var(--shadow-footer);
+  position: relative;
+}
+
+.footer::before {
+  content: '';
+  position: absolute;
+  top: -14px;
+  left: 0;
+  right: 0;
+  height: 14px;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0), var(--color-primary));
 }
 
 .inner {
