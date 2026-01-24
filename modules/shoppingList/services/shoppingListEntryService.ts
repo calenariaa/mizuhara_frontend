@@ -1,4 +1,4 @@
-import type { ShoppingListEntry } from '../../../types/api/shoppingList/shoppingListEntry'
+import type { ShoppingListEntry } from '~/types/api/shoppingList/shoppingListEntry'
 
 import { useApiClient } from '~/composables/api/useApiClient'
 

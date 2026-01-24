@@ -19,13 +19,43 @@
       </div>
 
       <nav class="nav">
-        <NuxtLink class="link" to="/" @click="emit('close')">Home</NuxtLink>
+        <div v-for="cat in categories" :key="cat.id" class="navGroup">
+          <div class="navGroupTitle">{{ cat.label }}</div>
+
+          <div class="navGroupLinks">
+            <NuxtLink
+              v-for="item in itemsByCategory.get(cat.id) ?? []"
+              :key="item.to"
+              class="link"
+              :to="item.to"
+              @click="emit('close')"
+            >
+              {{ item.label }}
+            </NuxtLink>
+          </div>
+        </div>
       </nav>
     </aside>
   </Teleport>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+
+import { navCategories, navItems, type NavCategoryId } from '~/config/navigation'
+
+const categories = navCategories
+
+const itemsByCategory = computed(() => {
+  const map = new Map<NavCategoryId, typeof navItems>()
+  for (const item of navItems) {
+    const arr = map.get(item.category) ?? []
+    arr.push(item)
+    map.set(item.category, arr)
+  }
+  return map
+})
+
 const props = defineProps<{
   open: boolean
 }>()
@@ -130,5 +160,24 @@ onBeforeUnmount(() => {
 
 .link:hover {
   background: var(--color-primary-soft);
+}
+
+.navGroup {
+  display: grid;
+  gap: 8px;
+}
+
+.navGroupTitle {
+  padding: 6px 4px 0;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.navGroupLinks {
+  display: grid;
+  gap: 8px;
 }
 </style>
