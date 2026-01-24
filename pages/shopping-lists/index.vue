@@ -75,7 +75,9 @@ onMounted(() => {
             Collection öffnen
           </NuxtLink>
 
-          <span class="mutedSmall">{{ listCountsByCollection.get(c.id) ?? 0 }} Listen</span>
+          <span v-if="(c.shoppingLists?.length ?? 0) === 0" class="mutedSmall">
+            Keine Listen in dieser Collection
+          </span>
         </div>
 
         <details class="details">

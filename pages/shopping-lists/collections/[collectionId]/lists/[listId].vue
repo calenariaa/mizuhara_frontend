@@ -12,12 +12,13 @@ import { shoppingListService } from '~/modules/shoppingList/services/shoppingLis
 import { userService } from '~/modules/user/services/userService'
 
 const route = useRoute()
-const listId = computed(() => Number(route.params.id))
+const listId = computed(() => Number(route.params.listId))
 
 const list = ref<ShoppingList | null>(null)
 const entries = ref<ShoppingListEntry[]>([])
 const pending = ref(false)
 const error = ref<string | null>(null)
+const entryApiPath = (id: number): string => `/api/shopping_list_entries/${id}`
 
 const adding = ref(false)
 const addError = ref<string | null>(null)
@@ -27,14 +28,35 @@ const products = ref<ProductInformation[]>([])
 const users = ref<User[]>([])
 const currentUserIri = ref<string>('')
 
+const quantity = ref<number | null>(null)
+
 const cache = useIriEntityCache()
+
+type HasIri = { '@id'?: string }
+
+const getIri = (entity: HasIri | null): string => {
+  return entity?.['@id'] ?? ''
+}
+
+const pickString = (value: unknown): string | null => {
+  return typeof value === 'string' && value.length > 0 ? value : null
+}
+
+const getUserLabel = (u: User): string => {
+  const maybe = u as unknown as Record<string, unknown>
+
+  return (
+    pickString(maybe.email) ??
+    pickString(maybe.username) ??
+    pickString(maybe.name) ??
+    pickString(maybe.displayName) ??
+    pickString(getIri(u)) ??
+    '—'
+  )
+}
 
 const productLabel = (p: ProductInformation | null, fallbackIri: string): string => {
   return p?.name ?? fallbackIri
-}
-
-const productMeta = (p: ProductInformation | null): string => {
-  return p?.brand ? p.brand : ''
 }
 
 const load = async (): Promise<void> => {
@@ -69,6 +91,7 @@ const load = async (): Promise<void> => {
     users.value = []
     selectedProductIri.value = ''
     currentUserIri.value = ''
+    quantity.value = null
   } finally {
     pending.value = false
   }
@@ -93,15 +116,14 @@ const rows = computed(() => {
       id: e.id,
       acquired: e.acquired,
       product: productLabel(p, e.productInformation),
-      brand: productMeta(p),
+      quantity: e.quantity,
       addedBy: u ? getUserLabel(u) : (e.addedBy ?? '—'),
     }
   })
 })
 
 const removeEntry = async (entry: ShoppingListEntry): Promise<void> => {
-  const iri = getIri(entry as unknown as HasIri)
-  const path = iri || `/api/shopping_list_entries/${entry.id}`
+  const path = entryApiPath(entry.id)
 
   const prev = entries.value
   entries.value = entries.value.filter((x) => x.id !== entry.id)
@@ -115,8 +137,7 @@ const removeEntry = async (entry: ShoppingListEntry): Promise<void> => {
 }
 
 const toggleAcquired = async (entry: ShoppingListEntry): Promise<void> => {
-  const iri = getIri(entry as unknown as HasIri)
-  const path = iri || `/api/shopping_list_entries/${entry.id}`
+  const path = entryApiPath(entry.id)
 
   const prev = entry.acquired
   entry.acquired = !entry.acquired
@@ -141,6 +162,7 @@ const addEntry = async (): Promise<void> => {
       shoppingList:
         getIri(list.value as unknown as HasIri) || `/api/shopping_lists/${list.value.id}`,
       productInformation: selectedProductIri.value,
+      quantity: quantity.value || 1,
       addedBy: currentUserIri.value || undefined,
     })
 
@@ -149,34 +171,12 @@ const addEntry = async (): Promise<void> => {
     if (created.addedBy) await cache.fetchUsers([created.addedBy])
 
     selectedProductIri.value = ''
+    quantity.value = null
   } catch (err) {
     addError.value = err instanceof Error ? err.message : 'Unknown error'
   } finally {
     adding.value = false
   }
-}
-
-type HasIri = { '@id'?: string }
-
-const getIri = (entity: HasIri | null): string => {
-  return entity?.['@id'] ?? ''
-}
-
-const pickString = (value: unknown): string | null => {
-  return typeof value === 'string' && value.length > 0 ? value : null
-}
-
-const getUserLabel = (u: User): string => {
-  const maybe = u as unknown as Record<string, unknown>
-
-  return (
-    pickString(maybe.email) ??
-    pickString(maybe.username) ??
-    pickString(maybe.name) ??
-    pickString(maybe.displayName) ??
-    pickString(getIri(u)) ??
-    '—'
-  )
 }
 </script>
 
@@ -220,10 +220,24 @@ const getUserLabel = (u: User): string => {
             Produkt
             <select v-model="selectedProductIri" class="select" :disabled="adding">
               <option value="">Bitte wählen…</option>
-              <option v-for="p in products" :key="p['@id']" :value="p['@id']">
-                {{ p.brand ? `${p.name} — ${p.brand}` : p.name }}
+              <option v-for="p in products" :key="p['@id'] ?? p.name" :value="p['@id']">
+                {{ p.name }}
               </option>
             </select>
+          </label>
+
+          <label class="label">
+            Quantity
+            <input
+              v-model.number="quantity"
+              class="input"
+              type="number"
+              inputmode="numeric"
+              min="1"
+              step="1"
+              :disabled="adding"
+              placeholder="z.B. 2"
+            />
           </label>
 
           <label class="label">
@@ -269,6 +283,7 @@ const getUserLabel = (u: User): string => {
               <tr>
                 <th class="thCheck">✓</th>
                 <th>Produkt</th>
+                <th class="thQty">Quantity</th>
                 <th>Added by</th>
                 <th class="thActions">Actions</th>
               </tr>
@@ -294,10 +309,9 @@ const getUserLabel = (u: User): string => {
 
                 <td>
                   <div class="prodName">{{ r.product }}</div>
-                  <div v-if="r.brand" class="prodMeta">
-                    <span class="brandBadge">{{ r.brand }}</span>
-                  </div>
                 </td>
+
+                <td class="cellQty">{{ r.quantity ?? '—' }}</td>
 
                 <td class="cellMuted">{{ r.addedBy }}</td>
 
@@ -396,7 +410,7 @@ const getUserLabel = (u: User): string => {
 
 @media (min-width: 860px) {
   .formRow {
-    grid-template-columns: 1fr 1fr auto;
+    grid-template-columns: 1fr 1fr 1fr auto;
     align-items: end;
   }
 }
@@ -410,6 +424,18 @@ const getUserLabel = (u: User): string => {
 }
 
 .select {
+  height: 40px;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-white);
+  border-radius: 12px;
+  padding: 0 10px;
+  color: var(--color-text-primary);
+  font-weight: 700;
+  width: 100%;
+  min-width: 0;
+}
+
+.input {
   height: 40px;
   border: 1px solid var(--color-border);
   background: var(--color-bg-white);
@@ -456,12 +482,15 @@ const getUserLabel = (u: User): string => {
   overflow-y: hidden;
   border-radius: 12px;
   border: 1px solid var(--color-border);
+  -webkit-overflow-scrolling: touch;
 }
 
 .table {
   width: 100%;
+  min-width: 840px;
   border-collapse: collapse;
   font-size: 13px;
+  table-layout: fixed;
 }
 
 .table th {
@@ -474,19 +503,16 @@ const getUserLabel = (u: User): string => {
   white-space: nowrap;
 }
 
-.table {
-  table-layout: fixed;
+.table th,
+.table td {
+  padding: 10px 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
 }
 
 .table tbody tr:hover td {
   background: var(--color-primary-soft);
-  overflow-wrap: anywhere;
-  word-break: break-word;
-}
-
-.cellStrong {
-  font-weight: 900;
-  color: var(--color-text-primary);
 }
 
 .cellMuted {
@@ -494,12 +520,24 @@ const getUserLabel = (u: User): string => {
   font-weight: 700;
 }
 
-.thActions {
-  width: 1%;
+.thActions,
+.cellActions {
+  width: 110px;
+}
+
+.thQty,
+.cellQty {
+  width: 110px;
+}
+
+.cellQty {
+  text-align: center;
+  font-variant-numeric: tabular-nums;
 }
 
 .cellActions {
-  width: 1%;
+  padding: 8px 12px;
+  text-align: left;
   white-space: nowrap;
 }
 
@@ -606,27 +644,9 @@ const getUserLabel = (u: User): string => {
 .prodName {
   font-weight: 900;
   color: var(--color-text-primary);
-}
-
-.prodMeta {
-  margin-top: 4px;
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-.brandBadge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 20px;
-  padding: 0 8px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 900;
-  color: var(--color-text-primary);
-  background: var(--color-bg-light);
-  border: 1px solid var(--color-border);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 @keyframes shimmer {
@@ -638,18 +658,18 @@ const getUserLabel = (u: User): string => {
   }
 }
 
-.thCheck {
-  width: 1%;
+.thCheck,
+.cellCheck {
+  width: 56px;
 }
 
 .cellCheck {
-  width: 1%;
-  white-space: nowrap;
+  padding: 8px;
 }
 
 .checkBtn {
-  width: 34px;
-  height: 34px;
+  width: 40px;
+  height: 40px;
   border-radius: 12px;
   border: 1px solid var(--color-border);
   background: var(--color-bg-white);

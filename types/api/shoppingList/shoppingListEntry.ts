@@ -5,4 +5,5 @@ export interface ShoppingListEntry extends BaseEntity {
   productInformation: Iri
   addedBy?: Iri
   acquired: boolean
+  quantity: number
 }

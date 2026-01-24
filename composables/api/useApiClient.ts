@@ -16,15 +16,18 @@ export function useApiClient() {
   const config = useRuntimeConfig()
   const apiBase = config.public.apiBase as string
 
-  const apiFetch = <T>(path: string, opts: FetchOptions<'json'> = {}) =>
-    $fetch<T>(path, {
+  const apiFetch = <T>(path: string, opts: FetchOptions<'json'> = {}) => {
+    const { headers, ...rest } = opts
+
+    return $fetch<T>(path, {
       baseURL: apiBase,
+      ...rest,
       headers: {
         Accept: 'application/ld+json',
-        ...(opts.headers ?? {}),
+        ...(headers ?? {}),
       },
-      ...opts,
     })
+  }
 
   const getCollection = async <T>(path: string, query?: Query): Promise<CollectionResult<T>> => {
     const data = await apiFetch<JsonLdCollection<T>>(path, { query })
