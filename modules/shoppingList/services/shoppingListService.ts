@@ -14,7 +14,7 @@ export function shoppingListService() {
   return {
     async getAll(): Promise<ShoppingList[]> {
       const data = await getCollection<ShoppingList>('/api/shopping_lists')
-      return data['hydra:member']
+      return data.items
     },
 
     async getById(id: number): Promise<ShoppingList> {

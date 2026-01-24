@@ -8,7 +8,7 @@ export function productInformationService() {
   return {
     async getAll(): Promise<ProductInformation[]> {
       const data = await getCollection<ProductInformation>('/api/product_informations')
-      return data['hydra:member']
+      return data.items
     },
   }
 }

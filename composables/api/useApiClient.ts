@@ -1,10 +1,16 @@
 import { useRuntimeConfig } from 'nuxt/app'
 import { $fetch, type FetchOptions } from 'ofetch'
 
-import type { HydraCollection } from '~/types/api/_shared/hydra'
+import type { CollectionResult, JsonLdCollection } from '~/types/api/_shared/collection'
 
 type QueryValue = string | number | boolean | null | undefined
 type Query = Record<string, QueryValue>
+
+const toCollectionResult = <T>(data: JsonLdCollection<T>): CollectionResult<T> => {
+  const items = data.member ?? data['hydra:member'] ?? []
+  const totalItems = data.totalItems ?? data['hydra:totalItems'] ?? items.length
+  return { items, totalItems }
+}
 
 export function useApiClient() {
   const config = useRuntimeConfig()
@@ -20,8 +26,10 @@ export function useApiClient() {
       ...opts,
     })
 
-  const getCollection = <T>(path: string, query?: Query) =>
-    apiFetch<HydraCollection<T>>(path, { query })
+  const getCollection = async <T>(path: string, query?: Query): Promise<CollectionResult<T>> => {
+    const data = await apiFetch<JsonLdCollection<T>>(path, { query })
+    return toCollectionResult(data)
+  }
 
   const getItem = <T>(pathOrIri: string) => apiFetch<T>(pathOrIri)
 

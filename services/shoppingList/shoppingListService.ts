@@ -30,7 +30,7 @@ export function shoppingListService() {
   return {
     async getCollections(): Promise<ShoppingListCollection[]> {
       const data = await getCollection<ShoppingListCollection>('/api/shopping_list_collections')
-      return data['hydra:member']
+      return data.items
     },
 
     async getCollection(id: number): Promise<ShoppingListCollection> {
@@ -39,7 +39,7 @@ export function shoppingListService() {
 
     async getShoppingLists(): Promise<ShoppingList[]> {
       const data = await getCollection<ShoppingList>('/api/shopping_lists')
-      return data['hydra:member']
+      return data.items
     },
 
     async getShoppingList(id: number): Promise<ShoppingList> {
@@ -66,12 +66,12 @@ export function shoppingListService() {
 
     async getProducts(): Promise<ProductInformation[]> {
       const data = await getCollection<ProductInformation>('/api/product_informations')
-      return data['hydra:member']
+      return data.items
     },
 
     async getUsers(): Promise<User[]> {
       const data = await getCollection<User>('/api/users')
-      return data['hydra:member']
+      return data.items
     },
   }
 }

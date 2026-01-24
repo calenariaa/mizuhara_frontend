@@ -8,7 +8,7 @@ export function userService() {
   return {
     async getAll(): Promise<User[]> {
       const data = await getCollection<User>('/api/users')
-      return data['hydra:member']
+      return data.items
     },
   }
 }
