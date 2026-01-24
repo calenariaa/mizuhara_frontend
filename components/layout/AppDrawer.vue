@@ -1,37 +1,41 @@
 <template>
   <ClientOnly>
     <Teleport to="body">
-      <div v-if="open" class="overlay" @click="emit('close')" @touchstart="emit('close')" />
+      <div v-if="open" class="overlay" @click="emit('close')" />
 
       <aside
         class="drawer"
         :class="{ open }"
         role="dialog"
-        aria-modal="true"
-        aria-label="Menu"
+        :aria-label="t('drawer.aria.menu')"
         @click.stop
         @touchstart.stop
       >
         <div class="drawerHeader">
-          <div class="drawerTitle">Menü</div>
-          <button class="close" type="button" aria-label="Close menu" @click="emit('close')">
+          <div class="drawerTitle">{{ t('drawer.title') }}</div>
+          <button
+            class="close"
+            type="button"
+            :aria-label="t('drawer.aria.close')"
+            @click="emit('close')"
+          >
             ✕
           </button>
         </div>
 
         <nav class="nav">
           <div v-for="cat in categories" :key="cat.id" class="navGroup">
-            <div class="navGroupTitle">{{ cat.label }}</div>
+            <div class="navGroupTitle">{{ resolveLabel(cat.label) }}</div>
 
             <div class="navGroupLinks">
               <NuxtLink
                 v-for="item in itemsByCategory.get(cat.id) ?? []"
                 :key="item.to"
                 class="link"
-                :to="item.to"
+                :to="localePath(item.to)"
                 @click="emit('close')"
               >
-                {{ item.label }}
+                {{ resolveLabel(item.label) }}
               </NuxtLink>
             </div>
           </div>
@@ -42,9 +46,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onBeforeUnmount, watch } from 'vue'
 
+import { useI18n, useLocalePath } from '#imports'
 import { navCategories, navItems, type NavCategoryId } from '~/config/navigation'
+
+const { t } = useI18n()
+const localePath = useLocalePath()
 
 const categories = navCategories
 
@@ -58,36 +66,36 @@ const itemsByCategory = computed(() => {
   return map
 })
 
-const props = defineProps<{
-  open: boolean
-}>()
+const resolveLabel = (keyOrLabel: string): string => {
+  const translated = t(keyOrLabel)
+  return translated === keyOrLabel ? keyOrLabel : translated
+}
 
-const emit = defineEmits<{
-  (e: 'close'): void
-}>()
+const props = defineProps<{ open: boolean }>()
+const emit = defineEmits<{ (e: 'close'): void }>()
+
+watch(
+  () => props.open,
+  (isOpen) => {
+    if (!import.meta.client) return
+    document.body.style.overflow = isOpen ? 'hidden' : ''
+  },
+  { immediate: true },
+)
 
 const onKeydown = (e: KeyboardEvent) => {
   if (!props.open) return
   if (e.key === 'Escape') emit('close')
 }
 
-onMounted(() => {
-  watch(
-    () => props.open,
-    (isOpen) => {
-      document.body.style.overflow = isOpen ? 'hidden' : ''
-    },
-    { immediate: true },
-  )
-
+if (import.meta.client) {
   window.addEventListener('keydown', onKeydown)
-})
+}
 
 onBeforeUnmount(() => {
-  if (import.meta.client) {
-    window.removeEventListener('keydown', onKeydown)
-    document.body.style.overflow = ''
-  }
+  if (!import.meta.client) return
+  window.removeEventListener('keydown', onKeydown)
+  document.body.style.overflow = ''
 })
 </script>
 

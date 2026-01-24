@@ -1,7 +1,12 @@
 <template>
   <header class="header">
     <div class="inner">
-      <button class="burger" type="button" aria-label="Open menu" @click="$emit('toggle-menu')">
+      <button
+        class="burger"
+        type="button"
+        :aria-label="t('header.aria.openMenu')"
+        @click="emit('toggle-menu')"
+      >
         <Icon class="burgerIcon" name="ph:list" mode="svg" aria-hidden="true" />
       </button>
 
@@ -10,6 +15,12 @@
       </div>
 
       <div class="actions">
+        <select v-model="selectedLocale" class="langSelect" :aria-label="t('header.aria.language')">
+          <option v-for="o in localeOptions" :key="o.code" :value="o.code">
+            {{ o.label }}
+          </option>
+        </select>
+
         <slot name="actions" />
       </div>
     </div>
@@ -17,9 +28,30 @@
 </template>
 
 <script setup lang="ts">
-defineEmits<{
-  (e: 'toggle-menu'): void
-}>()
+import { computed } from 'vue'
+
+import { useI18n } from '#imports'
+
+const emit = defineEmits<{ (e: 'toggle-menu'): void }>()
+
+const { t, locale, locales, setLocale } = useI18n()
+
+type LocaleCode = typeof locale.value
+type LocaleEntry = { code: LocaleCode; name?: string }
+
+const localeOptions = computed(() => {
+  return (locales.value as readonly LocaleEntry[]).map((l) => ({
+    code: l.code,
+    label: l.name ?? String(l.code).toUpperCase(),
+  }))
+})
+
+const selectedLocale = computed<LocaleCode>({
+  get: () => locale.value,
+  set: (code) => {
+    void setLocale(code)
+  },
+})
 </script>
 
 <style scoped>
@@ -97,5 +129,27 @@ defineEmits<{
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.langSelect {
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.16);
+  color: var(--color-bg-white);
+  padding: 0 10px;
+  cursor: pointer;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  outline: none;
+}
+
+.langSelect option {
+  color: var(--color-text-primary);
+  background: var(--color-bg-white);
+}
+
+.langSelect:focus {
+  border-color: rgba(255, 255, 255, 0.55);
 }
 </style>

@@ -12,11 +12,11 @@ export type NavCategory = {
 }
 
 export const navCategories: NavCategory[] = [
-  { id: 'general', label: 'Allgemein' },
-  { id: 'shopping', label: 'Shopping' },
+  { id: 'general', label: 'nav.categories.general' },
+  { id: 'shopping', label: 'nav.categories.shopping' },
 ]
 
 export const navItems: NavItem[] = [
-  { label: 'Home', to: '/', category: 'general' },
-  { label: 'Shopping Lists', to: '/shopping-lists', category: 'shopping' },
+  { label: 'nav.items.home', to: '/', category: 'general' },
+  { label: 'nav.items.shoppingLists', to: '/shopping-lists', category: 'shopping' },
 ]

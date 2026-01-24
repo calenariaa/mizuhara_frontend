@@ -1,0 +1,28 @@
+{
+  "drawer": {
+    "title": "Menu",
+    "aria": {
+      "menu": "Navigation",
+      "close": "Close menu"
+    }
+  },
+  "nav": {
+    "categories": {
+      "general": "General",
+      "shopping": "Shopping"
+    },
+    "items": {
+      "home": "Home",
+      "shoppingLists": "Shopping lists"
+    }
+  },
+  "footer": {
+    "copyright": "© {year} Mizuhara"
+  },
+  "header": {
+    "aria": {
+      "openMenu": "Open menu",
+      "language": "Language"
+    }
+  }
+}
