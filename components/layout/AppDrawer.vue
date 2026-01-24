@@ -1,8 +1,16 @@
 <template>
   <Teleport to="body">
-    <div v-if="open" class="overlay" @click="emit('close')" />
+    <div v-if="open" class="overlay" @click="emit('close')" @touchstart="emit('close')" />
 
-    <aside class="drawer" :class="{ open }" role="dialog" aria-modal="true" aria-label="Menu">
+    <aside
+      class="drawer"
+      :class="{ open }"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Menu"
+      @click.stop
+      @touchstart.stop
+    >
       <div class="drawerHeader">
         <div class="drawerTitle">Menü</div>
         <button class="close" type="button" aria-label="Close menu" @click="emit('close')">

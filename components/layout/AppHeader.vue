@@ -27,13 +27,17 @@ defineEmits<{
   position: sticky;
   top: 0;
   z-index: 50;
-  height: 112px;
+  height: 70px;
   color: var(--color-bg-white);
   background: linear-gradient(
     to bottom,
-    var(--color-primary) 0%,
-    rgba(192, 132, 252, 0.95) 60%,
-    rgba(255, 255, 255, 0) 100%
+    rgba(192, 132, 252, 1) 0%,
+    rgba(192, 132, 252, 0.98) 28%,
+    rgba(192, 132, 252, 0.92) 52%,
+    rgba(192, 132, 252, 0.76) 70%,
+    rgba(192, 132, 252, 0.48) 84%,
+    rgba(192, 132, 252, 0.22) 94%,
+    rgba(192, 132, 252, 0) 100%
   );
 }
 
