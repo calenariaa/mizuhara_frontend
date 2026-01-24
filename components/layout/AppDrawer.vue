@@ -1,42 +1,44 @@
 <template>
-  <Teleport to="body">
-    <div v-if="open" class="overlay" @click="emit('close')" @touchstart="emit('close')" />
+  <ClientOnly>
+    <Teleport to="body">
+      <div v-if="open" class="overlay" @click="emit('close')" @touchstart="emit('close')" />
 
-    <aside
-      class="drawer"
-      :class="{ open }"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Menu"
-      @click.stop
-      @touchstart.stop
-    >
-      <div class="drawerHeader">
-        <div class="drawerTitle">Menü</div>
-        <button class="close" type="button" aria-label="Close menu" @click="emit('close')">
-          ✕
-        </button>
-      </div>
-
-      <nav class="nav">
-        <div v-for="cat in categories" :key="cat.id" class="navGroup">
-          <div class="navGroupTitle">{{ cat.label }}</div>
-
-          <div class="navGroupLinks">
-            <NuxtLink
-              v-for="item in itemsByCategory.get(cat.id) ?? []"
-              :key="item.to"
-              class="link"
-              :to="item.to"
-              @click="emit('close')"
-            >
-              {{ item.label }}
-            </NuxtLink>
-          </div>
+      <aside
+        class="drawer"
+        :class="{ open }"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Menu"
+        @click.stop
+        @touchstart.stop
+      >
+        <div class="drawerHeader">
+          <div class="drawerTitle">Menü</div>
+          <button class="close" type="button" aria-label="Close menu" @click="emit('close')">
+            ✕
+          </button>
         </div>
-      </nav>
-    </aside>
-  </Teleport>
+
+        <nav class="nav">
+          <div v-for="cat in categories" :key="cat.id" class="navGroup">
+            <div class="navGroupTitle">{{ cat.label }}</div>
+
+            <div class="navGroupLinks">
+              <NuxtLink
+                v-for="item in itemsByCategory.get(cat.id) ?? []"
+                :key="item.to"
+                class="link"
+                :to="item.to"
+                @click="emit('close')"
+              >
+                {{ item.label }}
+              </NuxtLink>
+            </div>
+          </div>
+        </nav>
+      </aside>
+    </Teleport>
+  </ClientOnly>
 </template>
 
 <script setup lang="ts">

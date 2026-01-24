@@ -3,7 +3,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   runtimeConfig: {
     public: {
-      apiBase: process.env.NUXT_PUBLIC_BASE ?? 'http://localhost:8000',
+      apiBase: process.env.NUXT_PUBLIC_BASE ?? 'http://192.168.178.74:8000',
     },
   },
   modules: ['@nuxt/eslint', '@pinia/nuxt', '@nuxt/icon'],
