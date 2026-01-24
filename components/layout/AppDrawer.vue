@@ -93,7 +93,11 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .overlay {
-  background: var(--overlay);
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(15, 23, 42, 0.42);
+  backdrop-filter: blur(2px);
 }
 
 .drawer {
