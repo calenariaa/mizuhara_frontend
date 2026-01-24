@@ -1,4 +1,7 @@
 {
+  "ally":{
+    "breadcrumbs": "Breadcrumbs"
+  },
   "app": {
     "title": "Mizuhara · Smart Home",
     "description": "Smart Home Smart"
