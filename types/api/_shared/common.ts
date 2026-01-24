@@ -5,3 +5,8 @@ export interface BaseEntity {
   createdAt?: string
   updatedAt?: string
 }
+
+export type JsonLdResource = {
+  '@id': string
+  '@type'?: string
+}

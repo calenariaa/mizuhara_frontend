@@ -1,6 +1,6 @@
-import type { BaseEntity, Iri } from '../_shared/common'
+import type { JsonLdResource } from '../_shared/common'
 
-export interface ProductInformation extends BaseEntity {
+export type ProductInformation = JsonLdResource & {
   name: string
-  brand: Iri
+  brand?: string
 }
