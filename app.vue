@@ -18,7 +18,7 @@ body {
   margin: 0;
   padding: 0;
   background: #ffffff;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--font-sans), serif;
 }
 
 #__nuxt {

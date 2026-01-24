@@ -6,5 +6,16 @@ export default defineNuxtConfig({
       apiBase: process.env.NUXT_PUBLIC_BASE ?? 'http://localhost:8000',
     },
   },
-  modules: ['@nuxt/eslint', '@pinia/nuxt'],
+  modules: ['@nuxt/eslint', '@pinia/nuxt', '@nuxt/icon'],
+  css: ['@/assets/styles/theme.css', '@/assets/styles/fonts.css'],
+  app: {
+    head: {
+      title: 'Mizuhara · Smart Home',
+      meta: [
+        { name: 'description', content: 'Smart Home Smart' },
+        { name: 'theme-color', content: '#c084fc' },
+      ],
+      link: [{ rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }],
+    },
+  },
 })
