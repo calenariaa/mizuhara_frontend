@@ -4,8 +4,8 @@ import type { ShoppingList } from '~/types/api/shoppingList/shoppingList'
 import type { ShoppingListEntry } from '~/types/api/shoppingList/shoppingListEntry'
 
 import { useApiClient } from '~/composables/api/useApiClient'
-import { shoppingListService } from '~/modules/shoppingList/services/shoppingListService'
 import { shoppingListEntryService } from '~/modules/shoppingList/services/shoppingListEntryService'
+import { shoppingListService } from '~/modules/shoppingList/services/shoppingListService'
 
 const route = useRoute()
 const listId = computed(() => Number(route.params.id))
