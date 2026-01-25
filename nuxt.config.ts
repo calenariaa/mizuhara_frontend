@@ -20,6 +20,11 @@ export default defineNuxtConfig({
       { code: 'en', file: 'en.json' },
       { code: 'de', file: 'de.json' },
     ],
+    detectBrowserLanguage: {
+      useCookie: true,
+      cookieKey: 'i18n_redirected',
+      fallbackLocale: 'en',
+    },
     defaultLocale: 'en',
     strategy: 'prefix_except_default',
   },
