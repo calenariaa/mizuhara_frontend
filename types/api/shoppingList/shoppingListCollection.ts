@@ -1,6 +1,8 @@
-import type { BaseEntity, Iri } from '../_shared/common'
+import type { ShoppingList } from './shoppingList'
+import type { BaseEntity } from '../_shared/common'
 
 export interface ShoppingListCollection extends BaseEntity {
   name: string
-  shoppingLists?: Iri[]
+  description?: string | null
+  shoppingLists?: Array<ShoppingList | string>
 }

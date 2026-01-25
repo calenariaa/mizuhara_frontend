@@ -4,7 +4,6 @@ import type { ShoppingListCollection } from '@/types/api/shoppingList/shoppingLi
 
 import { useI18n, useLocalePath } from '#imports'
 import AppBreadcrumbs from '@/components/AppBreadcrumbs.vue'
-import { useApiClient } from '@/composables/api/useApiClient'
 import { shoppingListCollectionService } from '@/modules/shoppingList/services/shoppingListCollectionService'
 
 type HasIri = { '@id'?: string }
@@ -22,8 +21,6 @@ const error = ref<string | null>(null)
 const { t } = useI18n()
 const localePath = useLocalePath()
 
-const { getItem } = useApiClient()
-
 const load = async (): Promise<void> => {
   pending.value = true
   error.value = null
@@ -32,10 +29,8 @@ const load = async (): Promise<void> => {
     const c = await shoppingListCollectionService().getById(collectionId.value)
     collection.value = c
 
-    const iris = (c.shoppingLists ?? []).filter((x) => typeof x === 'string' && x.length > 0)
-
-    const loaded = await Promise.all(iris.map((iri) => getItem<ShoppingList>(iri)))
-    lists.value = loaded
+    const raw = c.shoppingLists ?? []
+    lists.value = raw.filter((x): x is ShoppingList => typeof x === 'object' && x !== null)
   } catch (err) {
     error.value = err instanceof Error ? err.message : t('errors.unknown')
     collection.value = null

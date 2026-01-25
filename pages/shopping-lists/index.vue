@@ -11,10 +11,32 @@ const collections = ref<ShoppingListCollection[]>([])
 const error = ref<string | null>(null)
 const pending = ref(false)
 
+const idFromIri = (iri: string | undefined): number | null => {
+  if (!iri) return null
+  const m = iri.match(/\/(\d+)\/?$/)
+  if (!m) return null
+  return Number(m[1])
+}
+
+const collectionNumericId = (c: ShoppingListCollection): number | null => {
+  if (typeof c.id === 'number') return c.id
+  return idFromIri(c['@id'])
+}
+
+const collectionKey = (c: ShoppingListCollection): string => {
+  return c['@id'] ?? String(collectionNumericId(c) ?? 'unknown')
+}
+
+const collectionDetailPath = (c: ShoppingListCollection): string | null => {
+  const id = collectionNumericId(c)
+  if (id === null) return null
+  return `/shopping-lists/collections/${id}`
+}
+
 const listCountsByCollection = computed(() => {
-  const map = new Map<number, number>()
+  const map = new Map<string, number>()
   for (const collection of collections.value) {
-    map.set(collection.id, (collection.shoppingLists ?? []).length)
+    map.set(collectionKey(collection), (collection.shoppingLists ?? []).length)
   }
   return map
 })
@@ -71,19 +93,24 @@ onMounted(() => {
     </div>
 
     <div v-else class="grid">
-      <article v-for="collection in collections" :key="collection.id" class="card">
+      <article v-for="collection in collections" :key="collectionKey(collection)" class="card">
         <div class="cardHeader">
           <div class="cardTitle">{{ collection.name }}</div>
-          <div class="badge">{{ listCountsByCollection.get(collection.id) ?? 0 }}</div>
+          <div class="badge">{{ listCountsByCollection.get(collectionKey(collection)) ?? 0 }}</div>
         </div>
 
         <div class="actions">
           <NuxtLink
+            v-if="collectionDetailPath(collection)"
             class="linkPrimary"
-            :to="localePath(`/shopping-lists/collections/${collection.id}`)"
+            :to="localePath(collectionDetailPath(collection)!)"
           >
             {{ t('shoppingLists.collections.actions.openCollection') }}
           </NuxtLink>
+
+          <span v-else class="mutedSmall">
+            {{ t('errors.unknown') }}
+          </span>
 
           <span v-if="(collection.shoppingLists?.length ?? 0) === 0" class="mutedSmall">
             {{ t('shoppingLists.collections.empty.noListsInCollection') }}

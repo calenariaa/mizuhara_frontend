@@ -1,13 +1,20 @@
 {
-  "a11y":{
-    "breadcrumb": "Breadcrumbs"
+  "a11y": {
+    "breadcrumb": "Brotkrümelnavigation"
   },
   "app": {
-    "title": "Mizuhara · Smart Home",
-    "description": "Smart Home Smart"
+    "title": "Mizuhara",
+    "description": "Smart Home"
   },
-  "errors": {
-    "unknown": "Unbekannter Fehler"
+  "drawer": {
+    "title": "Menü",
+    "aria": {
+      "menu": "Menü",
+      "close": "Menü schließen"
+    }
+  },
+  "footer": {
+    "copyright": "© {year} Mizuhara"
   },
   "header": {
     "aria": {
@@ -15,12 +22,16 @@
       "language": "Sprache"
     }
   },
-  "drawer": {
-    "title": "Menü",
-    "aria": {
-      "menu": "Navigation",
-      "close": "Menü schließen"
-    }
+  "home": {
+    "meta": {
+      "title": "Start"
+    },
+    "title": "Nuxt läuft",
+    "subtitle": "Alles sieht gut aus."
+  },
+  "locales": {
+    "de": "Deutsch",
+    "en": "English"
   },
   "nav": {
     "categories": {
@@ -32,19 +43,8 @@
       "shoppingLists": "Einkaufslisten"
     }
   },
-  "home": {
-    "meta": {
-      "title": "Start"
-    },
-    "title": "Mizuhara",
-    "subtitle": "Dein Smart-Home-Dashboard"
-  },
-  "footer": {
-    "copyright": "© {year} Mizuhara"
-  },
-  "locales": {
-    "en": "Englisch",
-    "de": "Deutsch"
+  "errors": {
+    "unknown": "Unbekannter Fehler"
   },
   "shoppingLists": {
     "breadcrumbs": {
@@ -66,8 +66,8 @@
         "loadingSubtitle": "Collections werden abgeholt."
       },
       "empty": {
-        "noCollectionsTitle": "Keine Collections",
-        "noListsInCollection": "Keine Listen in dieser Collection"
+        "noListsInCollection": "Keine Listen in dieser Collection",
+        "noCollectionsTitle": "Keine Collections"
       }
     },
     "collection": {

@@ -1,13 +1,23 @@
 {
   "a11y": {
-    "breadcrumb": "Breadcrumbs"
+    "breadcrumb": "Breadcrumb"
   },
   "app": {
-    "title": "Mizuhara · Smart Home",
-    "description": "Smart Home Smart"
+    "title": "Mizuhara",
+    "description": "Smart Home"
+  },
+  "drawer": {
+    "title": "Menu",
+    "aria": {
+      "menu": "Menu",
+      "close": "Close menu"
+    }
   },
   "errors": {
     "unknown": "Unknown error"
+  },
+  "footer": {
+    "copyright": "© {year} Mizuhara"
   },
   "header": {
     "aria": {
@@ -15,12 +25,16 @@
       "language": "Language"
     }
   },
-  "drawer": {
-    "title": "Menu",
-    "aria": {
-      "menu": "Navigation",
-      "close": "Close menu"
-    }
+  "home": {
+    "meta": {
+      "title": "Home"
+    },
+    "title": "Nuxt is running",
+    "subtitle": "Everything looks good."
+  },
+  "locales": {
+    "de": "Deutsch",
+    "en": "English"
   },
   "nav": {
     "categories": {
@@ -31,20 +45,6 @@
       "home": "Home",
       "shoppingLists": "Shopping lists"
     }
-  },
-  "home": {
-    "meta": {
-      "title": "Home"
-    },
-    "title": "Mizuhara",
-    "subtitle": "Your smart home dashboard"
-  },
-  "footer": {
-    "copyright": "© {year} Mizuhara"
-  },
-  "locales": {
-    "en": "English",
-    "de": "German"
   },
   "shoppingLists": {
     "breadcrumbs": {
@@ -66,8 +66,8 @@
         "loadingSubtitle": "Fetching collections."
       },
       "empty": {
-        "noCollectionsTitle": "No collections",
-        "noListsInCollection": "No lists in this collection"
+        "noListsInCollection": "No lists in this collection",
+        "noCollectionsTitle": "No collections"
       }
     },
     "collection": {
