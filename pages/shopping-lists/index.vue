@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import type { ShoppingListCollection } from '@/types/api/shoppingList/shoppingListCollection'
 
-import { useI18n } from '#imports'
+import { useI18n, useLocalePath } from '#imports'
 import { shoppingListCollectionService } from '@/modules/shoppingList/services/shoppingListCollectionService'
 
 const { t } = useI18n()
+const localePath = useLocalePath()
 
 const collections = ref<ShoppingListCollection[]>([])
 const error = ref<string | null>(null)
@@ -77,7 +78,10 @@ onMounted(() => {
         </div>
 
         <div class="actions">
-          <NuxtLink class="linkPrimary" :to="`/shopping-lists/collections/${collection.id}`">
+          <NuxtLink
+            class="linkPrimary"
+            :to="localePath(`/shopping-lists/collections/${collection.id}`)"
+          >
             {{ t('shoppingLists.collections.actions.openCollection') }}
           </NuxtLink>
 

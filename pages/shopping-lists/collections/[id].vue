@@ -2,7 +2,7 @@
 import type { ShoppingList } from '@/types/api/shoppingList/shoppingList'
 import type { ShoppingListCollection } from '@/types/api/shoppingList/shoppingListCollection'
 
-import { useI18n } from '#imports'
+import { useI18n, useLocalePath } from '#imports'
 import AppBreadcrumbs from '@/components/AppBreadcrumbs.vue'
 import { useApiClient } from '@/composables/api/useApiClient'
 import { shoppingListCollectionService } from '@/modules/shoppingList/services/shoppingListCollectionService'
@@ -18,7 +18,9 @@ const collection = ref<ShoppingListCollection | null>(null)
 const lists = ref<ShoppingList[]>([])
 const pending = ref(false)
 const error = ref<string | null>(null)
+
 const { t } = useI18n()
+const localePath = useLocalePath()
 
 const { getItem } = useApiClient()
 
@@ -46,9 +48,10 @@ const load = async (): Promise<void> => {
 watch(collectionId, () => void load(), { immediate: true })
 
 const breadcrumbs = computed(() => [
-  { label: t('shoppingLists.breadcrumbs.overview'), to: '/shopping-lists' },
-  { label: collection.value?.name ?? 'Collection' },
+  { label: t('shoppingLists.breadcrumbs.overview'), to: localePath('/shopping-lists') },
+  { label: collection.value?.name ?? t('shoppingLists.collection.titleFallback') },
 ])
+
 const listCountLabel = computed(() =>
   t('shoppingLists.collection.listCount', { count: lists.value.length }),
 )
@@ -60,7 +63,7 @@ const listCountLabel = computed(() =>
 
     <header class="header">
       <div class="titleWrap">
-        <h1 class="h1">{{ collection?.name ?? 'Collection' }}</h1>
+        <h1 class="h1">{{ collection?.name ?? t('shoppingLists.collection.titleFallback') }}</h1>
         <p class="subtitle">{{ listCountLabel }}</p>
       </div>
     </header>
@@ -80,6 +83,7 @@ const listCountLabel = computed(() =>
       </div>
       <div class="skeletonCard">
         <div class="skLine w55" />
+        <div class="skLine w55" />
         <div class="skLine w85" />
       </div>
     </div>
@@ -89,7 +93,7 @@ const listCountLabel = computed(() =>
         v-for="l in lists"
         :key="getIri(l) || String(l.id)"
         class="cardLink"
-        :to="`/shopping-lists/collections/${collectionId}/lists/${String(l.id)}`"
+        :to="localePath(`/shopping-lists/collections/${collectionId}/lists/${String(l.id)}`)"
       >
         <article class="card">
           <div class="cardHeader">
@@ -107,6 +111,7 @@ const listCountLabel = computed(() =>
 </template>
 
 <style scoped>
+/* unverändert */
 .page {
   max-width: 1080px;
   margin: 0 auto;
