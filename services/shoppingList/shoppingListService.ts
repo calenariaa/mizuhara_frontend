@@ -20,7 +20,7 @@ type CreateShoppingListBody = {
 
 type CreateShoppingListEntryBody = {
   shoppingList: string
-  productInformation: string
+  productName: string
   addedBy?: string
 }
 

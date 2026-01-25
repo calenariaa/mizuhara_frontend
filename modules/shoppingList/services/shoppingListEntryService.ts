@@ -4,7 +4,7 @@ import { useApiClient } from '~/composables/api/useApiClient'
 
 type CreateShoppingListEntryBody = {
   shoppingList: string
-  productInformation: string
+  productName: string
   quantity: number
   addedBy?: string
 }
