@@ -63,7 +63,7 @@ const getUserLabel = (u: User): string => {
 }
 
 const productLabel = (p: ProductInformation | null, fallbackIri: string): string => {
-  return p?.name ?? fallbackIri
+  return p?.productName ?? fallbackIri
 }
 
 const load = async (): Promise<void> => {
@@ -86,7 +86,7 @@ const load = async (): Promise<void> => {
     products.value = prodList
     users.value = userList
 
-    const productIris = e.map((x) => x.productInformation)
+    const productIris = e.map((x) => x.productName)
     const userIris = e.map((x) => x.addedBy).filter(Boolean) as string[]
 
     await Promise.all([cache.fetchProducts(productIris), cache.fetchUsers(userIris)])
@@ -122,14 +122,14 @@ const breadcrumbs = computed(() => [
 
 const rows = computed(() => {
   return entries.value.map((e) => {
-    const p = cache.getProductCached(e.productInformation)
+    const p = cache.getProductCached(e.productName)
     const u = e.addedBy ? cache.getUserCached(e.addedBy) : null
 
     return {
       iri: getIri(e as unknown as HasIri),
       id: e.id,
       acquired: e.acquired,
-      product: productLabel(p, e.productInformation),
+      product: productLabel(p, e.productName),
       quantity: e.quantity,
       addedBy: u ? getUserLabel(u) : (e.addedBy ?? '—'),
     }
@@ -175,13 +175,13 @@ const addEntry = async (): Promise<void> => {
     const created = await shoppingListEntryService().create({
       shoppingList:
         getIri(list.value as unknown as HasIri) || `/api/shopping_lists/${list.value.id}`,
-      productInformation: selectedProductIri.value,
+      productName: selectedProductIri.value,
       quantity: typeof quantity.value === 'number' ? quantity.value : 1,
       addedBy: currentUserIri.value || undefined,
     })
 
     entries.value = [created, ...entries.value]
-    await cache.fetchProducts([created.productInformation])
+    await cache.fetchProducts([created.productName])
     if (created.addedBy) await cache.fetchUsers([created.addedBy])
 
     selectedProductIri.value = ''
@@ -239,8 +239,12 @@ const entryCountLabel = computed(() =>
             Produkt
             <select v-model="selectedProductIri" class="select" :disabled="adding">
               <option value="">{{ t('shoppingLists.list.addEntry.productPlaceholder') }}</option>
-              <option v-for="p in products" :key="p['@id'] ?? p.name" :value="p['@id']">
-                {{ p.name }}
+              <option
+                v-for="p in products"
+                :key="p['@id'] ?? p.productName ?? String(p.id)"
+                :value="p['@id']"
+              >
+                {{ p.productName ?? '—' }}
               </option>
             </select>
           </label>
