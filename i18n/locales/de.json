@@ -96,7 +96,8 @@
         "addedByLabel": "Hinzugefügt von",
         "addButton": "Hinzufügen",
         "addingButton": "Wird hinzugefügt…",
-        "hint": "Produkt wird über IRI aufgelöst, User ebenfalls."
+        "hint": "Produkt wird über IRI aufgelöst, User ebenfalls.",
+        "product": "Produkt"
       },
       "content": {
         "title": "Inhalt",

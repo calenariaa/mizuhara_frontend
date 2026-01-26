@@ -265,7 +265,7 @@ const addEntry = async (): Promise<void> => {
               <option
                 v-for="p in products"
                 :key="getIri(p) || String((p as any).id)"
-                :value="getIri(p)"
+                :value="getIri(p) || `/api/product_informations/${(p as any).id}`"
               >
                 {{ productOptionLabel(p) }}
               </option>

@@ -96,7 +96,8 @@
         "addedByLabel": "Added by",
         "addButton": "Add",
         "addingButton": "Adding…",
-        "hint": "Product is resolved via IRI; user as well."
+        "hint": "Product is resolved via IRI; user as well.",
+        "product": "Product"
       },
       "content": {
         "title": "Contents",
