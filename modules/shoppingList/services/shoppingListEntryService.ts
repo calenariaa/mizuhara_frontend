@@ -7,6 +7,7 @@ type CreateShoppingListEntryBody = {
   productInformation: string
   quantity: number
   addedBy?: string
+  acquired?: boolean
 }
 
 export function shoppingListEntryService() {

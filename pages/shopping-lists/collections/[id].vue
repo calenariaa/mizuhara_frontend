@@ -10,6 +10,20 @@ type HasIri = { '@id'?: string }
 
 const getIri = (entity: HasIri | null): string => entity?.['@id'] ?? ''
 
+const numericIdFromIri = (iri: string): number | null => {
+  const match = iri.match(/\/(\d+)(?:\/)?$/)
+  if (!match) return null
+  const n = Number(match[1])
+  return Number.isFinite(n) ? n : null
+}
+
+const resolveListId = (l: ShoppingList): number | null => {
+  if (typeof l.id === 'number') return l.id
+  const iri = getIri(l)
+  if (!iri) return null
+  return numericIdFromIri(iri)
+}
+
 const route = useRoute()
 const collectionId = computed(() => Number(route.params.id))
 
@@ -84,18 +98,25 @@ const listCountLabel = computed(() =>
     </div>
 
     <div v-else class="grid">
-      <NuxtLink
-        v-for="l in lists"
-        :key="getIri(l) || String(l.id)"
-        class="cardLink"
-        :to="localePath(`/shopping-lists/collections/${collectionId}/lists/${String(l.id)}`)"
-      >
-        <article class="card">
+      <template v-for="l in lists" :key="getIri(l) || String(l.id)">
+        <NuxtLink
+          v-if="resolveListId(l) !== null"
+          class="cardLink"
+          :to="localePath(`/shopping-lists/collections/${collectionId}/lists/${resolveListId(l)}`)"
+        >
+          <article class="card">
+            <div class="cardHeader">
+              <div class="cardTitle">{{ l.name }}</div>
+            </div>
+          </article>
+        </NuxtLink>
+
+        <article v-else class="card cardLink isDisabled">
           <div class="cardHeader">
             <div class="cardTitle">{{ l.name }}</div>
           </div>
         </article>
-      </NuxtLink>
+      </template>
 
       <div v-if="lists.length === 0" class="empty">
         <div class="emptyTitle">{{ t('shoppingLists.collection.empty.title') }}</div>
@@ -106,7 +127,6 @@ const listCountLabel = computed(() =>
 </template>
 
 <style scoped>
-/* unverändert */
 .page {
   max-width: 1080px;
   margin: 0 auto;

@@ -1,15 +1,11 @@
 <script setup lang="ts">
 import type { ProductInformation } from '@/types/api/products/productInformation'
 import type { ShoppingList } from '@/types/api/shoppingList/shoppingList'
-import type { ShoppingListCollection } from '@/types/api/shoppingList/shoppingListCollection'
 import type { ShoppingListEntry } from '@/types/api/shoppingList/shoppingListEntry'
 import type { User } from '@/types/api/users/user'
 
 import { useI18n } from '#imports'
-import AppBreadcrumbs from '@/components/AppBreadcrumbs.vue'
-import { useIriEntityCache } from '@/composables/api/useIriEntityCache'
 import { productInformationService } from '@/modules/catalog/services/productInformationService'
-import { shoppingListCollectionService } from '@/modules/shoppingList/services/shoppingListCollectionService'
 import { shoppingListEntryService } from '@/modules/shoppingList/services/shoppingListEntryService'
 import { shoppingListService } from '@/modules/shoppingList/services/shoppingListService'
 import { userService } from '@/modules/user/services/userService'
@@ -17,53 +13,103 @@ import { userService } from '@/modules/user/services/userService'
 const route = useRoute()
 const { t } = useI18n()
 
-const collectionId = computed(() => Number(route.params.collectionId))
-const listId = computed(() => Number(route.params.listId))
+const listId = computed(() => {
+  const raw = route.params.listId
+  const value = Array.isArray(raw) ? raw[0] : raw
+  return Number(value)
+})
 
-const collection = ref<ShoppingListCollection | null>(null)
+type HasIri = { '@id'?: string }
+type EmbeddedUser = {
+  username?: string | null
+  email?: string | null
+  name?: string | null
+  displayName?: string | null
+} & HasIri
+type EmbeddedProductInformation = { productName?: string | null } & HasIri
+
+const getIri = (entity: HasIri | null | undefined): string => entity?.['@id'] ?? ''
+const entryApiPathFromEntry = (entry: ShoppingListEntry): string => {
+  const iri = getIri(entry as unknown as HasIri)
+  if (iri) return iri
+
+  const anyEntry = entry as unknown as { id?: number }
+  if (typeof anyEntry.id === 'number') return `/api/shopping_list_entries/${anyEntry.id}`
+
+  throw new Error('ShoppingListEntry hat weder @id noch id')
+}
+
+const shoppingListIri = computed(() => {
+  if (!list.value) return ''
+  return getIri(list.value as unknown as HasIri) || `/api/shopping_lists/${list.value.id}`
+})
+
 const list = ref<ShoppingList | null>(null)
 const entries = ref<ShoppingListEntry[]>([])
-const pending = ref(false)
-const error = ref<string | null>(null)
-const entryApiPath = (id: number): string => `/api/shopping_list_entries/${id}`
-
-const adding = ref(false)
-const addError = ref<string | null>(null)
-const selectedProductIri = ref<string>('')
-
 const products = ref<ProductInformation[]>([])
 const users = ref<User[]>([])
 const currentUserIri = ref<string>('')
 
-const quantity = ref<number | null>(null)
+const usersByIri = computed(() => {
+  const map = new Map<string, User>()
+  for (const u of users.value) {
+    const iri = getIri(u)
+    if (iri) map.set(iri, u)
+  }
+  return map
+})
 
-const cache = useIriEntityCache()
+const pending = ref(false)
+const error = ref<string | null>(null)
 
-type HasIri = { '@id'?: string }
+const adding = ref(false)
+const addError = ref<string | null>(null)
 
-const getIri = (entity: HasIri | null): string => {
-  return entity?.['@id'] ?? ''
-}
+const selectedProductIri = ref<string>('')
+const quantity = ref<number | null>(1)
 
-const pickString = (value: unknown): string | null => {
-  return typeof value === 'string' && value.length > 0 ? value : null
-}
+const pickString = (value: unknown): string | null =>
+  typeof value === 'string' && value.length > 0 ? value : null
 
 const getUserLabel = (u: User): string => {
   const maybe = u as unknown as Record<string, unknown>
 
   return (
-    pickString(maybe.email) ??
     pickString(maybe.username) ??
-    pickString(maybe.name) ??
     pickString(maybe.displayName) ??
+    pickString(maybe.name) ??
+    pickString(maybe.email) ??
     pickString(getIri(u)) ??
     '—'
   )
 }
 
-const productLabel = (p: ProductInformation | null, fallbackIri: string): string => {
-  return p?.productName ?? fallbackIri
+const userLabelFromEntry = (u: string | EmbeddedUser | null | undefined): string => {
+  if (!u) return '—'
+
+  if (typeof u !== 'string') {
+    return u.username ?? u.displayName ?? u.name ?? u.email ?? getIri(u) ?? '—'
+  }
+
+  const fromCache = usersByIri.value.get(u)
+  if (fromCache) return getUserLabel(fromCache)
+
+  const match = u.match(/\/(\d+)\/?$/)
+  if (!match) return u
+  return `User #${match[1]}`
+}
+
+const productLabelFromEntry = (
+  p: string | EmbeddedProductInformation | null | undefined,
+): string => {
+  if (!p) return '—'
+  if (typeof p === 'string') return p
+  return p.productName ?? getIri(p) ?? '—'
+}
+
+const productOptionLabel = (p: ProductInformation): string => {
+  const maybe = p as unknown as { productName?: string | null; name?: string | null }
+  return maybe.productName ?? maybe.name ?? getIri(p) ?? '—'
 }
 
 const load = async (): Promise<void> => {
@@ -72,77 +118,63 @@ const load = async (): Promise<void> => {
   addError.value = null
 
   try {
-    const [c, l, e, prodList, userList] = await Promise.all([
-      shoppingListCollectionService().getById(collectionId.value),
+    const [l, prodList, userList] = await Promise.all([
       shoppingListService().getById(listId.value),
-      shoppingListEntryService().getByShoppingListId(listId.value),
       productInformationService().getAll(),
       userService().getAll(),
     ])
 
-    collection.value = c
     list.value = l
-    entries.value = e
+
+    const raw = (l.shoppingListEntries ?? []) as unknown[]
+    entries.value = raw.filter((x): x is ShoppingListEntry => typeof x === 'object' && x !== null)
+
     products.value = prodList
     users.value = userList
-
-    const productIris = e.map((x) => x.productName)
-    const userIris = e.map((x) => x.addedBy).filter(Boolean) as string[]
-
-    await Promise.all([cache.fetchProducts(productIris), cache.fetchUsers(userIris)])
-
-    currentUserIri.value = users.value[0]?.['@id'] ?? ''
+    currentUserIri.value = getIri(users.value[0]) ?? ''
   } catch (err) {
     error.value = err instanceof Error ? err.message : t('errors.unknown')
-    collection.value = null
     list.value = null
     entries.value = []
     products.value = []
     users.value = []
-    selectedProductIri.value = ''
     currentUserIri.value = ''
-    quantity.value = null
+    selectedProductIri.value = ''
+    quantity.value = 1
   } finally {
     pending.value = false
   }
 }
 
-watch([collectionId, listId], () => void load(), { immediate: true })
-
-const breadcrumbs = computed(() => [
-  { label: t('shoppingLists.breadcrumbs.overview'), to: '/shopping-lists' },
-  {
-    label:
-      collection.value?.name ??
-      t('shoppingLists.list.breadcrumbs.collectionFallback', { id: collectionId.value }),
-    to: `/shopping-lists/collections/${collectionId.value}`,
-  },
-  { label: list.value?.name ?? 'Liste' },
-])
+watch(listId, () => void load(), { immediate: true })
 
 const rows = computed(() => {
   return entries.value.map((e) => {
-    const p = cache.getProductCached(e.productName)
-    const u = e.addedBy ? cache.getUserCached(e.addedBy) : null
+    const prod = e.productInformation as unknown as
+      | string
+      | EmbeddedProductInformation
+      | null
+      | undefined
+    const by = e.addedBy as unknown as string | EmbeddedUser | null | undefined
 
     return {
+      entry: e,
       iri: getIri(e as unknown as HasIri),
       id: e.id,
       acquired: e.acquired,
-      product: productLabel(p, e.productName),
+      product: productLabelFromEntry(prod),
       quantity: e.quantity,
-      addedBy: u ? getUserLabel(u) : (e.addedBy ?? '—'),
+      addedBy: userLabelFromEntry(by),
     }
   })
 })
 
 const removeEntry = async (entry: ShoppingListEntry): Promise<void> => {
-  const path = entryApiPath(entry.id)
-
   const prev = entries.value
-  entries.value = entries.value.filter((x) => x.id !== entry.id)
+  entries.value = entries.value.filter((x) => x !== entry)
 
   try {
+    const path = entryApiPathFromEntry(entry)
     await shoppingListEntryService().remove(path)
   } catch (err) {
     entries.value = prev
@@ -151,12 +183,11 @@ const removeEntry = async (entry: ShoppingListEntry): Promise<void> => {
 }
 
 const toggleAcquired = async (entry: ShoppingListEntry): Promise<void> => {
-  const path = entryApiPath(entry.id)
-
   const prev = entry.acquired
   entry.acquired = !entry.acquired
 
   try {
+    const path = entryApiPathFromEntry(entry)
     await shoppingListEntryService().setAcquired(path, entry.acquired)
   } catch (err) {
     entry.acquired = prev
@@ -165,46 +196,38 @@ const toggleAcquired = async (entry: ShoppingListEntry): Promise<void> => {
 }
 
 const addEntry = async (): Promise<void> => {
-  if (!selectedProductIri.value) return
   if (!list.value) return
+  if (!selectedProductIri.value) return
 
   adding.value = true
   addError.value = null
 
   try {
-    const created = await shoppingListEntryService().create({
-      shoppingList:
-        getIri(list.value as unknown as HasIri) || `/api/shopping_lists/${list.value.id}`,
-      productName: selectedProductIri.value,
+    await shoppingListEntryService().create({
+      shoppingList: shoppingListIri.value,
+      productInformation: selectedProductIri.value,
       quantity: typeof quantity.value === 'number' ? quantity.value : 1,
       addedBy: currentUserIri.value || undefined,
+      acquired: false,
     })
 
-    entries.value = [created, ...entries.value]
-    await cache.fetchProducts([created.productName])
-    if (created.addedBy) await cache.fetchUsers([created.addedBy])
-
     selectedProductIri.value = ''
-    quantity.value = null
+    quantity.value = 1
+
+    await load()
   } catch (err) {
     addError.value = err instanceof Error ? err.message : t('errors.unknown')
   } finally {
     adding.value = false
   }
 }
-const entryCountLabel = computed(() =>
-  t('shoppingLists.list.header.entryCount', { count: rows.value.length }),
-)
 </script>
 
 <template>
   <div class="page">
-    <AppBreadcrumbs :items="breadcrumbs" />
-
     <header class="header">
       <div class="titleWrap">
         <h1 class="h1">{{ list?.name ?? 'Shopping List' }}</h1>
-        <p class="subtitle">{{ entryCountLabel }}</p>
       </div>
     </header>
 
@@ -236,21 +259,21 @@ const entryCountLabel = computed(() =>
 
         <div class="formRow">
           <label class="label">
-            Produkt
+            {{ t('shoppingLists.list.addEntry.product') }}
             <select v-model="selectedProductIri" class="select" :disabled="adding">
               <option value="">{{ t('shoppingLists.list.addEntry.productPlaceholder') }}</option>
               <option
                 v-for="p in products"
-                :key="p['@id'] ?? p.productName ?? String(p.id)"
-                :value="p['@id']"
+                :key="getIri(p) || String((p as any).id)"
+                :value="getIri(p)"
               >
-                {{ p.productName ?? '—' }}
+                {{ productOptionLabel(p) }}
               </option>
             </select>
           </label>
 
           <label class="label">
-            Quantity
+            {{ t('shoppingLists.list.content.table.quantity') }}
             <input
               v-model.number="quantity"
               class="input"
@@ -259,15 +282,18 @@ const entryCountLabel = computed(() =>
               min="1"
               step="1"
               :disabled="adding"
-              :placeholder="t('shoppingLists.list.addEntry.quantityPlaceholder')"
             />
           </label>
 
           <label class="label">
-            Added by
+            {{ t('shoppingLists.list.content.table.addedBy') }}
             <select v-model="currentUserIri" class="select" :disabled="adding">
               <option value="">—</option>
-              <option v-for="u in users" :key="getIri(u) || String(u.id)" :value="getIri(u)">
+              <option
+                v-for="u in users"
+                :key="getIri(u) || String((u as any).id)"
+                :value="getIri(u)"
+              >
                 {{ getUserLabel(u) }}
               </option>
             </select>
@@ -299,9 +325,7 @@ const entryCountLabel = computed(() =>
 
         <div v-if="rows.length === 0" class="empty">
           <div class="emptyTitle">{{ t('shoppingLists.list.content.emptyTitle') }}</div>
-          <div class="emptySub">
-            {{ t('shoppingLists.list.content.emptySubtitle') }}
-          </div>
+          <div class="emptySub">{{ t('shoppingLists.list.content.emptySubtitle') }}</div>
         </div>
 
         <div v-else class="tableWrap">
@@ -317,8 +341,8 @@ const entryCountLabel = computed(() =>
             </thead>
             <tbody>
               <tr
-                v-for="(r, idx) in rows"
-                :key="r.iri ?? r.id ?? idx"
+                v-for="r in rows"
+                :key="r.iri ?? String(r.id)"
                 :class="{ isAcquired: r.acquired }"
               >
                 <td class="cellCheck">
@@ -330,7 +354,7 @@ const entryCountLabel = computed(() =>
                         ? t('shoppingLists.list.content.aria.markNotAcquired')
                         : t('shoppingLists.list.content.aria.markAcquired')
                     "
-                    @click="toggleAcquired(entries[idx])"
+                    @click="toggleAcquired(r.entry)"
                   >
                     <span class="checkDot" />
                   </button>
@@ -349,7 +373,7 @@ const entryCountLabel = computed(() =>
                     class="iconBtn"
                     type="button"
                     :aria-label="t('shoppingLists.list.content.aria.deleteEntry')"
-                    @click="removeEntry(entries[idx])"
+                    @click="removeEntry(r.entry)"
                   >
                     <Icon name="lucide:x" size="18" />
                   </button>
@@ -364,24 +388,6 @@ const entryCountLabel = computed(() =>
 </template>
 
 <style scoped>
-.iconBtn {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  border: 1px solid var(--color-border);
-  background: var(--color-bg-white);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: var(--color-text-secondary);
-}
-
-.iconBtn:hover {
-  background: var(--color-bg-light);
-  color: var(--color-error);
-}
-
 .page {
   max-width: 1080px;
   margin: 0 auto;
@@ -405,12 +411,6 @@ const entryCountLabel = computed(() =>
   margin: 0;
   font-size: 22px;
   color: var(--color-text-primary);
-}
-
-.subtitle {
-  margin: 0;
-  color: var(--color-text-secondary);
-  font-size: 13px;
 }
 
 .stack {
@@ -440,21 +440,6 @@ const entryCountLabel = computed(() =>
   color: var(--color-text-primary);
 }
 
-.pill {
-  min-width: 28px;
-  height: 24px;
-  padding: 0 8px;
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 900;
-  font-size: 12px;
-  background: var(--color-primary-soft);
-  border: 1px solid var(--color-border);
-  color: var(--color-text-primary);
-}
-
 .formRow {
   display: grid;
   gap: 10px;
@@ -475,18 +460,7 @@ const entryCountLabel = computed(() =>
   color: var(--color-text-secondary);
 }
 
-.select {
-  height: 40px;
-  border: 1px solid var(--color-border);
-  background: var(--color-bg-white);
-  border-radius: 12px;
-  padding: 0 10px;
-  color: var(--color-text-primary);
-  font-weight: 700;
-  width: 100%;
-  min-width: 0;
-}
-
+.select,
 .input {
   height: 40px;
   border: 1px solid var(--color-border);
@@ -567,11 +541,6 @@ const entryCountLabel = computed(() =>
   background: var(--color-primary-soft);
 }
 
-.cellMuted {
-  color: var(--color-text-secondary);
-  font-weight: 700;
-}
-
 .thActions,
 .cellActions {
   width: 64px;
@@ -587,24 +556,74 @@ const entryCountLabel = computed(() =>
   font-variant-numeric: tabular-nums;
 }
 
-.cellActions {
-  padding: 8px 12px;
-  text-align: left;
-  white-space: nowrap;
+.thCheck,
+.cellCheck {
+  width: 56px;
 }
 
-.btnGhost {
+.cellCheck {
+  padding: 8px;
+}
+
+.checkBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
   border: 1px solid var(--color-border);
   background: var(--color-bg-white);
-  border-radius: 12px;
-  padding: 8px 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  font-weight: 900;
-  color: var(--color-text-primary);
 }
 
-.btnGhost:hover {
+.checkDot {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  border: 2px solid var(--color-border);
+  background: transparent;
+}
+
+.isAcquired .checkDot {
+  border-color: var(--color-success);
+  background: var(--color-success);
+}
+
+.isAcquired .prodName {
+  text-decoration: line-through;
+  opacity: 0.75;
+}
+
+.prodName {
+  font-weight: 900;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cellMuted {
+  color: var(--color-text-secondary);
+  font-weight: 700;
+}
+
+.iconBtn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-white);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+}
+
+.iconBtn:hover {
   background: var(--color-bg-light);
+  color: var(--color-error);
 }
 
 .empty {
@@ -693,14 +712,6 @@ const entryCountLabel = computed(() =>
   width: 85%;
 }
 
-.prodName {
-  font-weight: 900;
-  color: var(--color-text-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 @keyframes shimmer {
   0% {
     background-position: 200% 0;
@@ -708,52 +719,5 @@ const entryCountLabel = computed(() =>
   100% {
     background-position: -200% 0;
   }
-}
-
-.thCheck,
-.cellCheck {
-  width: 56px;
-}
-
-.cellCheck {
-  padding: 8px;
-}
-
-.checkBtn {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  border: 1px solid var(--color-border);
-  background: var(--color-bg-white);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-
-.checkBtn:hover {
-  background: var(--color-bg-light);
-}
-
-.checkDot {
-  width: 14px;
-  height: 14px;
-  border-radius: 999px;
-  border: 2px solid var(--color-border);
-  background: transparent;
-}
-
-.isAcquired .checkDot {
-  border-color: var(--color-success);
-  background: var(--color-success);
-}
-
-.isAcquired .prodName {
-  text-decoration: line-through;
-  opacity: 0.75;
-}
-
-.isAcquired td {
-  opacity: 0.95;
 }
 </style>
