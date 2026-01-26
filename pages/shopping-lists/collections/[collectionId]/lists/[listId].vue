@@ -6,12 +6,30 @@ import type { User } from '@/types/api/users/user'
 
 import { useI18n } from '#imports'
 import { productInformationService } from '@/modules/catalog/services/productInformationService'
+import { shoppingListCollectionService } from '@/modules/shoppingList/services/shoppingListCollectionService'
 import { shoppingListEntryService } from '@/modules/shoppingList/services/shoppingListEntryService'
 import { shoppingListService } from '@/modules/shoppingList/services/shoppingListService'
 import { userService } from '@/modules/user/services/userService'
 
 const route = useRoute()
 const { t } = useI18n()
+
+const collectionId = computed(() => {
+  const raw = route.params.collectionId
+  const value = Array.isArray(raw) ? raw[0] : raw
+  return Number(value)
+})
+
+const collectionName = ref<string | null>(null)
+
+const loadCollection = async (): Promise<void> => {
+  try {
+    const c = await shoppingListCollectionService().getById(collectionId.value)
+    collectionName.value = c.name ?? null
+  } catch {
+    collectionName.value = null
+  }
+}
 
 const listId = computed(() => {
   const raw = route.params.listId
@@ -112,6 +130,18 @@ const productOptionLabel = (p: ProductInformation): string => {
   return maybe.productName ?? maybe.name ?? getIri(p) ?? '—'
 }
 
+const localePath = useLocalePath()
+
+const breadcrumbs = computed(() => [
+  {
+    label: collectionName.value ?? '…',
+    to: localePath(`/shopping-lists/collections/${collectionId.value}`),
+  },
+  {
+    label: list.value?.name ?? '…',
+  },
+])
+
 const load = async (): Promise<void> => {
   pending.value = true
   error.value = null
@@ -147,6 +177,7 @@ const load = async (): Promise<void> => {
 }
 
 watch(listId, () => void load(), { immediate: true })
+watch(collectionId, () => void loadCollection(), { immediate: true })
 
 const rows = computed(() => {
   return entries.value.map((e) => {
@@ -225,6 +256,7 @@ const addEntry = async (): Promise<void> => {
 
 <template>
   <div class="page">
+    <AppBreadcrumbs :items="breadcrumbs" />
     <header class="header">
       <div class="titleWrap">
         <h1 class="h1">{{ list?.name ?? 'Shopping List' }}</h1>
