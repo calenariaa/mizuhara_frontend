@@ -1,6 +1,6 @@
-import type { ProductInformation } from '~/types/api/products/productInformation'
+import type { ProductInformation } from '@/types/api/products/productInformation'
 
-import { useApiClient } from '~/composables/api/useApiClient'
+import { useApiClient } from '@/composables/api/useApiClient'
 
 export function productInformationService() {
   const { getCollection } = useApiClient()

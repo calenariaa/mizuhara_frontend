@@ -1,22 +1,20 @@
+import type {
+  CreateShoppingListEntryRequest,
+  UpdateShoppingListEntryRequest,
+} from '@/modules/shoppingList/types/request'
 import type { ShoppingListEntry } from '@/types/api/shoppingList/shoppingListEntry'
 
 import { useApiClient } from '@/composables/api/useApiClient'
+import { SHOPPING_LIST_ENTRIES_ENDPOINT } from '@/modules/shoppingList/services/endpoints'
 
-type CreateShoppingListEntryBody = {
-  shoppingList: string
-  productInformation: string
-  quantity: number
-  addedBy?: string
-  acquired?: boolean
-}
 
 export function shoppingListEntryService() {
   const { post, del, patch } = useApiClient()
 
   return {
-    async create(body: CreateShoppingListEntryBody): Promise<ShoppingListEntry> {
-      return post<ShoppingListEntry, CreateShoppingListEntryBody>(
-        '/api/shopping_list_entries',
+    async create(body: CreateShoppingListEntryRequest): Promise<ShoppingListEntry> {
+      return post<ShoppingListEntry, CreateShoppingListEntryRequest>(
+        SHOPPING_LIST_ENTRIES_ENDPOINT,
         body,
       )
     },
@@ -26,7 +24,8 @@ export function shoppingListEntryService() {
     },
 
     async setAcquired(entryIriOrPath: string, acquired: boolean): Promise<void> {
-      await patch<unknown, { acquired: boolean }>(entryIriOrPath, { acquired })
+      const body: UpdateShoppingListEntryRequest = { acquired }
+      await patch<unknown, UpdateShoppingListEntryRequest>(entryIriOrPath, body)
     },
   }
 }

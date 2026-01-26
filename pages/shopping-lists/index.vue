@@ -3,60 +3,65 @@ import type { ShoppingListCollection } from '@/types/api/shoppingList/shoppingLi
 
 import { useI18n, useLocalePath } from '#imports'
 import { shoppingListCollectionService } from '@/modules/shoppingList/services/shoppingListCollectionService'
+import { getNumericIdFromIri } from '@/services/resource/iri'
 
 const { t } = useI18n()
 const localePath = useLocalePath()
 
 const collections = ref<ShoppingListCollection[]>([])
-const error = ref<string | null>(null)
-const pending = ref(false)
-
-const idFromIri = (iri: string | undefined): number | null => {
-  if (!iri) return null
-  const m = iri.match(/\/(\d+)\/?$/)
-  if (!m) return null
-  return Number(m[1])
-}
+const errorMessage = ref<string | null>(null)
+const isLoading = ref(false)
 
 const collectionNumericId = (c: ShoppingListCollection): number | null => {
   if (typeof c.id === 'number') return c.id
-  return idFromIri(c['@id'])
+  return getNumericIdFromIri(c['@id'])
 }
 
 const collectionKey = (c: ShoppingListCollection): string => {
   return c['@id'] ?? String(collectionNumericId(c) ?? 'unknown')
 }
 
-const collectionDetailPath = (c: ShoppingListCollection): string | null => {
-  const id = collectionNumericId(c)
-  if (id === null) return null
-  return `/shopping-lists/collections/${id}`
+type CollectionCard = {
+  key: string
+  name: string
+  listCount: number
+  detailPath?: string
+  hasLists: boolean
 }
 
-const listCountsByCollection = computed(() => {
-  const map = new Map<string, number>()
-  for (const collection of collections.value) {
-    map.set(collectionKey(collection), (collection.shoppingLists ?? []).length)
-  }
-  return map
-})
+const collectionCards = computed<CollectionCard[]>(() =>
+  collections.value.map((collection) => {
+    const key = collectionKey(collection)
+    const numericId = collectionNumericId(collection)
+    const detailPath = numericId === null ? undefined : `/shopping-lists/collections/${numericId}`
+    const listCount = (collection.shoppingLists ?? []).length
 
-const loadData = async (): Promise<void> => {
-  pending.value = true
-  error.value = null
+    return {
+      key,
+      name: collection.name,
+      listCount,
+      detailPath,
+      hasLists: listCount > 0,
+    }
+  }),
+)
+
+const loadCollections = async (): Promise<void> => {
+  isLoading.value = true
+  errorMessage.value = null
 
   try {
     collections.value = await shoppingListCollectionService().getAll()
   } catch (err) {
-    error.value = err instanceof Error ? err.message : t('errors.unknown')
+    errorMessage.value = err instanceof Error ? err.message : t('errors.unknown')
     collections.value = []
   } finally {
-    pending.value = false
+    isLoading.value = false
   }
 }
 
 onMounted(() => {
-  void loadData()
+  void loadCollections()
 })
 </script>
 
@@ -71,39 +76,39 @@ onMounted(() => {
       <button
         class="refresh"
         type="button"
-        :disabled="pending"
+        :disabled="isLoading"
         :aria-label="t('shoppingLists.collections.actions.refreshAria')"
-        @click="loadData"
+        @click="loadCollections"
       >
-        <Icon :name="pending ? 'ph:spinner-gap' : 'ph:arrow-clockwise'" class="refreshIcon" />
+        <Icon :name="isLoading ? 'ph:spinner-gap' : 'ph:arrow-clockwise'" class="refreshIcon" />
       </button>
     </header>
 
-    <div v-if="error" class="error">
+    <div v-if="errorMessage" class="error">
       <div class="errorTitle">{{ t('shoppingLists.state.errorTitle') }}</div>
-      <div class="errorMsg">{{ error }}</div>
-      <button class="retry" type="button" @click="loadData">
+      <div class="errorMsg">{{ errorMessage }}</div>
+      <button class="retry" type="button" @click="loadCollections">
         {{ t('shoppingLists.state.retry') }}
       </button>
     </div>
 
-    <div v-else-if="pending" class="loadingCard">
+    <div v-else-if="isLoading" class="loadingCard">
       <div class="loadingTitle">{{ t('shoppingLists.collections.state.loadingTitle') }}</div>
       <div class="loadingSub">{{ t('shoppingLists.collections.state.loadingSubtitle') }}</div>
     </div>
 
     <div v-else class="grid">
-      <article v-for="collection in collections" :key="collectionKey(collection)" class="card">
+      <article v-for="collection in collectionCards" :key="collection.key" class="card">
         <div class="cardHeader">
           <div class="cardTitle">{{ collection.name }}</div>
-          <div class="badge">{{ listCountsByCollection.get(collectionKey(collection)) ?? 0 }}</div>
+          <div class="badge">{{ collection.listCount }}</div>
         </div>
 
         <div class="actions">
           <NuxtLink
-            v-if="collectionDetailPath(collection)"
+            v-if="collection.detailPath"
             class="linkPrimary"
-            :to="localePath(collectionDetailPath(collection)!)"
+            :to="localePath(collection.detailPath)"
           >
             {{ t('shoppingLists.collections.actions.openCollection') }}
           </NuxtLink>
@@ -112,7 +117,7 @@ onMounted(() => {
             {{ t('errors.unknown') }}
           </span>
 
-          <span v-if="(collection.shoppingLists?.length ?? 0) === 0" class="mutedSmall">
+          <span v-if="!collection.hasLists" class="mutedSmall">
             {{ t('shoppingLists.collections.empty.noListsInCollection') }}
           </span>
         </div>

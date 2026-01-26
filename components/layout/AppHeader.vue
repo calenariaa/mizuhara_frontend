@@ -11,13 +11,13 @@
       </button>
 
       <div class="title">
-        <slot name="title">Mizuhara</slot>
+        <slot name="title">{{ t('app.title') }}</slot>
       </div>
 
       <div class="actions">
         <select v-model="selectedLocale" class="langSelect" :aria-label="t('header.aria.language')">
-          <option v-for="o in localeOptions" :key="o.code" :value="o.code">
-            {{ o.label }}
+          <option v-for="option in localeOptions" :key="option.code" :value="option.code">
+            {{ option.label }}
           </option>
         </select>
 
@@ -34,12 +34,14 @@ import { useI18n } from '#imports'
 
 type LocaleCode = 'de' | 'en'
 
+const localeCodes = ['en', 'de'] as const
+
 const emit = defineEmits<{ (e: 'toggle-menu'): void }>()
 
 const { t, locale, setLocale } = useI18n()
 
 const localeOptions = computed(() =>
-  (['en', 'de'] as const).map((code) => ({
+  localeCodes.map((code) => ({
     code,
     label: t(`locales.${code}`),
   })),

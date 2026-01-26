@@ -24,18 +24,18 @@
         </div>
 
         <nav class="nav">
-          <div v-for="cat in categories" :key="cat.id" class="navGroup">
-            <div class="navGroupTitle">{{ t(cat.label) }}</div>
+          <div v-for="group in groups" :key="group.category.id" class="navGroup">
+            <div class="navGroupTitle">{{ t(group.category.labelKey) }}</div>
 
             <div class="navGroupLinks">
               <NuxtLink
-                v-for="item in itemsByCategory.get(cat.id) ?? []"
-                :key="item.to"
+                v-for="item in group.items"
+                :key="item.path"
                 class="link"
-                :to="localePath(item.to)"
+                :to="localePath(item.path)"
                 @click="emit('close')"
               >
-                {{ t(item.label) }}
+                {{ t(item.labelKey) }}
               </NuxtLink>
             </div>
           </div>
@@ -46,10 +46,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
+import { onBeforeUnmount, onMounted, watch } from 'vue'
 
 import { useI18n, useLocalePath } from '#imports'
-import { navCategories, navItems, type NavCategoryId, type NavItem } from '@/config/navigation'
+import { navGroups } from '@/config/navigation'
 
 const props = defineProps<{ open: boolean }>()
 const emit = defineEmits<{ (e: 'close'): void }>()
@@ -57,17 +57,12 @@ const emit = defineEmits<{ (e: 'close'): void }>()
 const { t } = useI18n()
 const localePath = useLocalePath()
 
-const categories = navCategories
+const groups = navGroups
 
-const itemsByCategory = computed(() => {
-  const map = new Map<NavCategoryId, NavItem[]>()
-  for (const item of navItems) {
-    const items = map.get(item.category) ?? []
-    items.push(item)
-    map.set(item.category, items)
-  }
-  return map
-})
+const onKeydown = (event: KeyboardEvent) => {
+  if (!props.open) return
+  if (event.key === 'Escape') emit('close')
+}
 
 watch(
   () => props.open,
@@ -79,17 +74,13 @@ watch(
 )
 
 onMounted(() => {
-  const onKeydown = (e: KeyboardEvent) => {
-    if (!props.open) return
-    if (e.key === 'Escape') emit('close')
-  }
-
   window.addEventListener('keydown', onKeydown)
+})
 
-  onBeforeUnmount(() => {
-    window.removeEventListener('keydown', onKeydown)
-    document.body.style.overflow = ''
-  })
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', onKeydown)
+  if (!import.meta.client) return
+  document.body.style.overflow = ''
 })
 </script>
 

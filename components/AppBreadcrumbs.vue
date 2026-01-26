@@ -11,10 +11,10 @@ const { t } = useI18n()
 <template>
   <nav class="wrap" :aria-label="t('a11y.breadcrumb')">
     <ol class="list">
-      <li v-for="(c, i) in items" :key="`${c.label}-${i}`" class="item">
-        <NuxtLink v-if="c.to" class="link" :to="c.to">{{ c.label }}</NuxtLink>
-        <span v-else class="current">{{ c.label }}</span>
-        <span v-if="i < items.length - 1" class="sep">/</span>
+      <li v-for="(crumb, index) in items" :key="`${crumb.label}-${index}`" class="item">
+        <NuxtLink v-if="crumb.to" class="link" :to="crumb.to">{{ crumb.label }}</NuxtLink>
+        <span v-else class="current">{{ crumb.label }}</span>
+        <span v-if="index < items.length - 1" class="sep">/</span>
       </li>
     </ol>
   </nav>
