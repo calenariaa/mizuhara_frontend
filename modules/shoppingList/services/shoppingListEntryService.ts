@@ -7,7 +7,6 @@ import type { ShoppingListEntry } from '@/types/api/shoppingList/shoppingListEnt
 import { useApiClient } from '@/composables/api/useApiClient'
 import { SHOPPING_LIST_ENTRIES_ENDPOINT } from '@/modules/shoppingList/services/endpoints'
 
-
 export function shoppingListEntryService() {
   const { post, del, patch } = useApiClient()
 

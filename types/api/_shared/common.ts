@@ -5,7 +5,6 @@ export interface BaseEntity {
   id?: number
 }
 
-
 export type JsonLdResource = {
   '@id': Iri
   '@type'?: string
