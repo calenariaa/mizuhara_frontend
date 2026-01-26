@@ -4,7 +4,8 @@ import type { ShoppingList } from '@/types/api/shoppingList/shoppingList'
 import type { ShoppingListEntry } from '@/types/api/shoppingList/shoppingListEntry'
 import type { User } from '@/types/api/users/user'
 
-import { useI18n } from '#imports'
+import { useI18n, useLocalePath } from '#imports'
+import AppBreadcrumbs from '@/components/AppBreadcrumbs.vue'
 import { productInformationService } from '@/modules/catalog/services/productInformationService'
 import { shoppingListCollectionService } from '@/modules/shoppingList/services/shoppingListCollectionService'
 import { shoppingListEntryService } from '@/modules/shoppingList/services/shoppingListEntryService'
@@ -85,6 +86,60 @@ const addError = ref<string | null>(null)
 
 const selectedProductIri = ref<string>('')
 const quantity = ref<number | null>(1)
+
+const editingEntryIri = ref<string | null>(null)
+const editProductIri = ref<string>('')
+const editQuantity = ref<number | null>(1)
+const editAddedByIri = ref<string>('')
+const savingEdit = ref(false)
+const editError = ref<string | null>(null)
+
+const entryKey = (e: ShoppingListEntry): string => entryApiPathFromEntry(e)
+
+const startEdit = (entry: ShoppingListEntry): void => {
+  editingEntryIri.value = entryKey(entry)
+  editError.value = null
+
+  const prod = entry.productInformation as unknown as
+    | string
+    | EmbeddedProductInformation
+    | null
+    | undefined
+  const by = entry.addedBy as unknown as string | EmbeddedUser | null | undefined
+
+  editProductIri.value = typeof prod === 'string' ? prod : getIri(prod) || ''
+  editAddedByIri.value = typeof by === 'string' ? by : getIri(by) || ''
+  editQuantity.value = typeof entry.quantity === 'number' ? entry.quantity : 1
+}
+
+const cancelEdit = (): void => {
+  editingEntryIri.value = null
+  editProductIri.value = ''
+  editAddedByIri.value = ''
+  editQuantity.value = 1
+  editError.value = null
+}
+
+const saveEdit = async (entry: ShoppingListEntry): Promise<void> => {
+  savingEdit.value = true
+  editError.value = null
+
+  try {
+    const path = entryKey(entry)
+    await shoppingListEntryService().update(path, {
+      productInformation: editProductIri.value,
+      addedBy: editAddedByIri.value || undefined,
+      quantity: typeof editQuantity.value === 'number' ? editQuantity.value : 1,
+    })
+
+    await load()
+    cancelEdit()
+  } catch (err) {
+    editError.value = err instanceof Error ? err.message : t('errors.unknown')
+  } finally {
+    savingEdit.value = false
+  }
+}
 
 const pickString = (value: unknown): string | null =>
   typeof value === 'string' && value.length > 0 ? value : null
@@ -393,22 +448,94 @@ const addEntry = async (): Promise<void> => {
                 </td>
 
                 <td>
-                  <div class="prodName">{{ r.product }}</div>
+                  <div v-if="editingEntryIri !== (r.iri || '')" class="prodName">
+                    {{ r.product }}
+                  </div>
+
+                  <select v-else v-model="editProductIri" class="select" :disabled="savingEdit">
+                    <option value="">—</option>
+                    <option
+                      v-for="p in products"
+                      :key="getIri(p) || String((p as any).id)"
+                      :value="getIri(p) || `/api/product_informations/${(p as any).id}`"
+                    >
+                      {{ productOptionLabel(p) }}
+                    </option>
+                  </select>
                 </td>
 
-                <td class="cellQty">{{ r.quantity ?? '—' }}</td>
+                <td class="cellQty">
+                  <span v-if="editingEntryIri !== (r.iri || '')">{{ r.quantity ?? '—' }}</span>
 
-                <td class="cellMuted">{{ r.addedBy }}</td>
+                  <input
+                    v-else
+                    v-model.number="editQuantity"
+                    class="input"
+                    type="number"
+                    inputmode="numeric"
+                    min="1"
+                    step="1"
+                    :disabled="savingEdit"
+                  />
+                </td>
+
+                <td class="cellMuted">
+                  <span v-if="editingEntryIri !== (r.iri || '')">{{ r.addedBy }}</span>
+
+                  <select v-else v-model="editAddedByIri" class="select" :disabled="savingEdit">
+                    <option value="">—</option>
+                    <option
+                      v-for="u in users"
+                      :key="getIri(u) || String((u as any).id)"
+                      :value="getIri(u) || `/api/users/${(u as any).id}`"
+                    >
+                      {{ getUserLabel(u) }}
+                    </option>
+                  </select>
+                </td>
 
                 <td class="cellActions">
-                  <button
-                    class="iconBtn"
-                    type="button"
-                    :aria-label="t('shoppingLists.list.content.aria.deleteEntry')"
-                    @click="removeEntry(r.entry)"
-                  >
-                    <Icon name="lucide:x" size="18" />
-                  </button>
+                  <template v-if="editingEntryIri === (r.iri || '')">
+                    <button
+                      class="iconBtn"
+                      type="button"
+                      aria-label="Save"
+                      :disabled="savingEdit || !editProductIri"
+                      @click="saveEdit(r.entry)"
+                    >
+                      <Icon name="lucide:check" size="18" />
+                    </button>
+
+                    <button
+                      class="iconBtn"
+                      type="button"
+                      aria-label="Cancel"
+                      :disabled="savingEdit"
+                      @click="cancelEdit"
+                    >
+                      <Icon name="lucide:undo-2" size="18" />
+                    </button>
+                  </template>
+
+                  <template v-else>
+                    <button
+                      class="iconBtn"
+                      type="button"
+                      aria-label="Edit"
+                      @click="startEdit(r.entry)"
+                    >
+                      <Icon name="lucide:pencil" size="18" />
+                    </button>
+
+                    <button
+                      class="iconBtn"
+                      type="button"
+                      :aria-label="t('shoppingLists.list.content.aria.deleteEntry')"
+                      @click="removeEntry(r.entry)"
+                    >
+                      <Icon name="lucide:x" size="18" />
+                    </button>
+                  </template>
                 </td>
               </tr>
             </tbody>
@@ -420,6 +547,12 @@ const addEntry = async (): Promise<void> => {
 </template>
 
 <style scoped>
+.cellActions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
 .page {
   max-width: 1080px;
   margin: 0 auto;
@@ -575,7 +708,7 @@ const addEntry = async (): Promise<void> => {
 
 .thActions,
 .cellActions {
-  width: 64px;
+  width: 112px;
 }
 
 .thQty,

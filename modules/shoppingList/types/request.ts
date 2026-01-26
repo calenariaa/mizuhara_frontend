@@ -18,6 +18,9 @@ export interface CreateShoppingListEntryRequest {
   acquired?: boolean
 }
 
-export interface UpdateShoppingListEntryRequest {
-  acquired: boolean
+export type UpdateShoppingListEntryRequest = {
+  acquired?: boolean
+  quantity?: number
+  productInformation?: string
+  addedBy?: string
 }

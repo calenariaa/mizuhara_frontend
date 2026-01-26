@@ -26,5 +26,9 @@ export function shoppingListEntryService() {
       const body: UpdateShoppingListEntryRequest = { acquired }
       await patch<unknown, UpdateShoppingListEntryRequest>(entryIriOrPath, body)
     },
+
+    async update(entryIriOrPath: string, body: UpdateShoppingListEntryRequest): Promise<void> {
+      await patch<unknown, UpdateShoppingListEntryRequest>(entryIriOrPath, body)
+    },
   }
 }
