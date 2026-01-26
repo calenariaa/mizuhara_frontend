@@ -1,15 +1,26 @@
 <template>
   <header class="header">
     <div class="inner">
-      <button class="burger" type="button" aria-label="Open menu" @click="$emit('toggle-menu')">
+      <button
+        class="burger"
+        type="button"
+        :aria-label="t('header.aria.openMenu')"
+        @click="emit('toggle-menu')"
+      >
         <Icon class="burgerIcon" name="ph:list" mode="svg" aria-hidden="true" />
       </button>
 
       <div class="title">
-        <slot name="title">Mizuhara</slot>
+        <slot name="title">{{ t('app.title') }}</slot>
       </div>
 
       <div class="actions">
+        <select v-model="selectedLocale" class="langSelect" :aria-label="t('header.aria.language')">
+          <option v-for="option in localeOptions" :key="option.code" :value="option.code">
+            {{ option.label }}
+          </option>
+        </select>
+
         <slot name="actions" />
       </div>
     </div>
@@ -17,9 +28,31 @@
 </template>
 
 <script setup lang="ts">
-defineEmits<{
-  (e: 'toggle-menu'): void
-}>()
+import { computed } from 'vue'
+
+import { useI18n } from '#imports'
+
+type LocaleCode = 'de' | 'en'
+
+const localeCodes = ['en', 'de'] as const
+
+const emit = defineEmits<{ (e: 'toggle-menu'): void }>()
+
+const { t, locale, setLocale } = useI18n()
+
+const localeOptions = computed(() =>
+  localeCodes.map((code) => ({
+    code,
+    label: t(`locales.${code}`),
+  })),
+)
+
+const selectedLocale = computed<LocaleCode>({
+  get: () => locale.value as LocaleCode,
+  set: (code) => {
+    void setLocale(code)
+  },
+})
 </script>
 
 <style scoped>
@@ -31,17 +64,17 @@ defineEmits<{
   color: var(--color-bg-white);
   background: linear-gradient(
     to bottom,
-    rgba(192, 132, 252, 1) 0%,
-    rgba(192, 132, 252, 0.9) 10%,
-    rgba(192, 132, 252, 0.8) 20%,
-    rgba(192, 132, 252, 0.7) 30%,
-    rgba(192, 132, 252, 0.6) 40%,
-    rgba(192, 132, 252, 0.5) 50%,
-    rgba(192, 132, 252, 0.4) 60%,
-    rgba(192, 132, 252, 0.3) 70%,
-    rgba(192, 132, 252, 0.2) 80%,
-    rgba(192, 132, 252, 0.1) 90%,
-    rgba(192, 132, 252, 0) 100%
+    rgb(from var(--color-primary) r g b / 1) 0%,
+    rgb(from var(--color-primary) r g b / 0.9) 10%,
+    rgb(from var(--color-primary) r g b / 0.8) 20%,
+    rgb(from var(--color-primary) r g b / 0.7) 30%,
+    rgb(from var(--color-primary) r g b / 0.6) 40%,
+    rgb(from var(--color-primary) r g b / 0.5) 50%,
+    rgb(from var(--color-primary) r g b / 0.4) 60%,
+    rgb(from var(--color-primary) r g b / 0.3) 70%,
+    rgb(from var(--color-primary) r g b / 0.2) 80%,
+    rgb(from var(--color-primary) r g b / 0.1) 90%,
+    rgb(from var(--color-primary) r g b / 0) 100%
   );
 }
 
@@ -81,7 +114,7 @@ defineEmits<{
 }
 
 .burger:active {
-  background: rgba(255, 255, 255, 0.18);
+  background: rgb(255 255 255 / 0.18);
 }
 
 .burger:active .burgerIcon {
@@ -97,5 +130,27 @@ defineEmits<{
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.langSelect {
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid rgb(255 255 255 / 0.28);
+  background: rgb(255 255 255 / 0.16);
+  color: var(--color-bg-white);
+  padding: 0 10px;
+  cursor: pointer;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  outline: none;
+}
+
+.langSelect option {
+  color: var(--color-text-primary);
+  background: var(--color-bg-white);
+}
+
+.langSelect:focus {
+  border-color: rgb(255 255 255 / 0.55);
 }
 </style>

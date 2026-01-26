@@ -1,7 +1,11 @@
 export type Iri = string
 
 export interface BaseEntity {
-  id: number
-  createdAt?: string
-  updatedAt?: string
+  '@id'?: string
+  id?: number
+}
+
+export type JsonLdResource = {
+  '@id': Iri
+  '@type'?: string
 }

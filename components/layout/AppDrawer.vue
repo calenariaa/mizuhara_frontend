@@ -1,67 +1,96 @@
 <template>
-  <Teleport to="body">
-    <div v-if="open" class="overlay" @click="emit('close')" @touchstart="emit('close')" />
+  <ClientOnly>
+    <Teleport to="body">
+      <div v-if="open" class="overlay" @click="emit('close')" />
 
-    <aside
-      class="drawer"
-      :class="{ open }"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Menu"
-      @click.stop
-      @touchstart.stop
-    >
-      <div class="drawerHeader">
-        <div class="drawerTitle">Menü</div>
-        <button class="close" type="button" aria-label="Close menu" @click="emit('close')">
-          ✕
-        </button>
-      </div>
+      <aside
+        class="drawer"
+        :class="{ open }"
+        role="dialog"
+        :aria-label="t('drawer.aria.menu')"
+        @click.stop
+        @touchstart.stop
+      >
+        <div class="drawerHeader">
+          <div class="drawerTitle">{{ t('drawer.title') }}</div>
+          <button
+            class="close"
+            type="button"
+            :aria-label="t('drawer.aria.close')"
+            @click="emit('close')"
+          >
+            ✕
+          </button>
+        </div>
 
-      <nav class="nav">
-        <NuxtLink class="link" to="/" @click="emit('close')">Home</NuxtLink>
-      </nav>
-    </aside>
-  </Teleport>
+        <nav class="nav">
+          <div v-for="group in groups" :key="group.category.id" class="navGroup">
+            <div class="navGroupTitle">{{ t(group.category.labelKey) }}</div>
+
+            <div class="navGroupLinks">
+              <NuxtLink
+                v-for="item in group.items"
+                :key="item.path"
+                class="link"
+                :to="localePath(item.path)"
+                @click="emit('close')"
+              >
+                {{ t(item.labelKey) }}
+              </NuxtLink>
+            </div>
+          </div>
+        </nav>
+      </aside>
+    </Teleport>
+  </ClientOnly>
 </template>
 
 <script setup lang="ts">
-const props = defineProps<{
-  open: boolean
-}>()
+import { onBeforeUnmount, onMounted, watch } from 'vue'
 
-const emit = defineEmits<{
-  (e: 'close'): void
-}>()
+import { useI18n, useLocalePath } from '#imports'
+import { navGroups } from '@/config/navigation'
 
-const onKeydown = (e: KeyboardEvent) => {
+const props = defineProps<{ open: boolean }>()
+const emit = defineEmits<{ (e: 'close'): void }>()
+
+const { t } = useI18n()
+const localePath = useLocalePath()
+
+const groups = navGroups
+
+const onKeydown = (event: KeyboardEvent) => {
   if (!props.open) return
-  if (e.key === 'Escape') emit('close')
+  if (event.key === 'Escape') emit('close')
 }
 
-onMounted(() => {
-  watch(
-    () => props.open,
-    (isOpen) => {
-      document.body.style.overflow = isOpen ? 'hidden' : ''
-    },
-    { immediate: true },
-  )
+watch(
+  () => props.open,
+  (isOpen) => {
+    if (!import.meta.client) return
+    document.body.style.overflow = isOpen ? 'hidden' : ''
+  },
+  { immediate: true },
+)
 
+onMounted(() => {
   window.addEventListener('keydown', onKeydown)
 })
 
 onBeforeUnmount(() => {
-  if (import.meta.client) {
-    window.removeEventListener('keydown', onKeydown)
-    document.body.style.overflow = ''
-  }
+  window.removeEventListener('keydown', onKeydown)
+  if (!import.meta.client) return
+  document.body.style.overflow = ''
 })
 </script>
 
 <style scoped>
 .overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
   background: var(--overlay);
+  backdrop-filter: blur(2px);
 }
 
 .drawer {
@@ -110,7 +139,7 @@ onBeforeUnmount(() => {
 }
 
 .close:active {
-  background: rgba(15, 23, 42, 0.06);
+  background: rgb(from var(--color-text-primary) r g b / 0.06);
 }
 
 .nav {
@@ -130,5 +159,24 @@ onBeforeUnmount(() => {
 
 .link:hover {
   background: var(--color-primary-soft);
+}
+
+.navGroup {
+  display: grid;
+  gap: 8px;
+}
+
+.navGroupTitle {
+  padding: 6px 4px 0;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.navGroupLinks {
+  display: grid;
+  gap: 8px;
 }
 </style>

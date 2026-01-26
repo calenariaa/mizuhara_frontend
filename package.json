@@ -15,6 +15,7 @@
     "precommit": "npm run lint:fix && npm run format && npm run lint && npm run format:check"
   },
   "dependencies": {
+    "@nuxtjs/i18n": "^10.2.1",
     "nuxt": "^4.3.0",
     "pinia": "^3.0.4",
     "vue": "^3.5.27"

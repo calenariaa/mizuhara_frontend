@@ -1,7 +1,9 @@
-import type { BaseEntity, Iri } from '../_shared/common'
+import type { BaseEntity } from '../_shared/common'
+import type { ProductInformation } from '../products/productInformation'
 
 export interface ShoppingListEntry extends BaseEntity {
-  shoppingList: Iri
-  productInformation: Iri
-  addedBy?: Iri
+  productInformation: ProductInformation | string
+  addedBy?: string | null
+  acquired: boolean
+  quantity: number
 }

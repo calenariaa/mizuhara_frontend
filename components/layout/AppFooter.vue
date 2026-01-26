@@ -1,12 +1,16 @@
 <template>
   <footer class="footer">
     <div class="inner">
-      <span class="text">© {{ year }} Mizuhara</span>
+      <span class="text">{{ t('footer.copyright', { year }) }}</span>
     </div>
   </footer>
 </template>
 
 <script setup lang="ts">
+import { useI18n } from '#imports'
+
+const { t } = useI18n()
+
 const year = new Date().getFullYear()
 </script>
 

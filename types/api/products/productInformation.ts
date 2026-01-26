@@ -1,6 +1,6 @@
-import type { BaseEntity, Iri } from '../_shared/common'
+import type { BaseEntity } from '../_shared/common'
 
 export interface ProductInformation extends BaseEntity {
-  name: string
-  brand: Iri
+  code?: string | null
+  productName?: string | null
 }
