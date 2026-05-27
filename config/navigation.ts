@@ -23,6 +23,7 @@ export const navCategories: readonly NavCategory[] = [
 
 export const navItems: readonly NavItem[] = [
   { labelKey: 'nav.items.home', path: '/', categoryId: 'general' },
+  { labelKey: 'nav.items.users', path: '/users', categoryId: 'general' },
   { labelKey: 'nav.items.shoppingLists', path: '/shopping-lists', categoryId: 'shopping' },
 ]
 

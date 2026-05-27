@@ -86,6 +86,9 @@ const usersByIri = computed(() => {
 
 const pending = ref(false)
 const error = ref<string | null>(null)
+const completionPromptDismissed = ref(false)
+const deletingCompletedList = ref(false)
+const deleteCompletedListError = ref<string | null>(null)
 
 const adding = ref(false)
 const addError = ref<string | null>(null)
@@ -197,6 +200,7 @@ const productOptionIri = (productInformation: ProductInformation): string =>
 const userOptionIri = (user: User): string => getIri(user) || `${USERS_ENDPOINT}/${user.id}`
 
 const localePath = useLocalePath()
+const router = useRouter()
 
 const breadcrumbs = computed(() => [
   {
@@ -267,6 +271,41 @@ const rows = computed(() => {
     }
   })
 })
+
+const hasEntries = computed(() => entries.value.length > 0)
+const allEntriesAcquired = computed(
+  () => hasEntries.value && entries.value.every((entry) => entry.acquired),
+)
+const shouldShowCompletionPrompt = computed(
+  () => allEntriesAcquired.value && !completionPromptDismissed.value,
+)
+
+watch(allEntriesAcquired, (isComplete) => {
+  if (!isComplete) {
+    completionPromptDismissed.value = false
+    deleteCompletedListError.value = null
+  }
+})
+
+const dismissCompletionPrompt = (): void => {
+  completionPromptDismissed.value = true
+}
+
+const deleteCompletedList = async (): Promise<void> => {
+  if (!list.value) return
+
+  deletingCompletedList.value = true
+  deleteCompletedListError.value = null
+
+  try {
+    await shoppingListService().remove(listId.value)
+    await router.push(localePath(`/shopping-lists/collections/${collectionId.value}`))
+  } catch (err) {
+    deleteCompletedListError.value = err instanceof Error ? err.message : t('errors.unknown')
+  } finally {
+    deletingCompletedList.value = false
+  }
+}
 
 const removeEntry = async (entry: ShoppingListEntry): Promise<void> => {
   const prev = entries.value
@@ -352,6 +391,39 @@ const addEntry = async (): Promise<void> => {
     </div>
 
     <div v-else class="stack">
+      <section v-if="shouldShowCompletionPrompt" class="completionCard">
+        <div>
+          <div class="completionTitle">{{ t('shoppingLists.list.completion.title') }}</div>
+          <div class="completionText">{{ t('shoppingLists.list.completion.text') }}</div>
+          <div v-if="deleteCompletedListError" class="hintError">
+            {{ deleteCompletedListError }}
+          </div>
+        </div>
+
+        <div class="completionActions">
+          <button
+            class="btnSecondary"
+            type="button"
+            :disabled="deletingCompletedList"
+            @click="dismissCompletionPrompt"
+          >
+            {{ t('shoppingLists.list.completion.laterButton') }}
+          </button>
+          <button
+            class="btnDanger"
+            type="button"
+            :disabled="deletingCompletedList"
+            @click="deleteCompletedList"
+          >
+            {{
+              deletingCompletedList
+                ? t('shoppingLists.list.completion.deletingButton')
+                : t('shoppingLists.list.completion.deleteButton')
+            }}
+          </button>
+        </div>
+      </section>
+
       <section class="card">
         <div class="cardHeader">
           <div class="cardTitle">{{ t('shoppingLists.list.addEntry.title') }}</div>
@@ -665,6 +737,69 @@ const addEntry = async (): Promise<void> => {
 .btnPrimary:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.btnSecondary,
+.btnDanger {
+  height: 40px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 0 14px;
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.btnSecondary {
+  background: var(--color-bg-light);
+  color: var(--color-text-primary);
+}
+
+.btnDanger {
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.btnSecondary:disabled,
+.btnDanger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.completionCard {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 16px;
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.completionTitle {
+  font-weight: 900;
+  color: #14532d;
+}
+
+.completionText {
+  margin-top: 4px;
+  color: #166534;
+  font-size: 13px;
+}
+
+.completionActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+@media (max-width: 720px) {
+  .completionCard {
+    align-items: stretch;
+    flex-direction: column;
+  }
 }
 
 .hint {

@@ -1,86 +1,204 @@
 # Mizuhara Frontend
 
-Modernes **Tablet- & Mobile-First Frontend** auf Basis von **Nuxt 4 / Vue 3**,  
-entwickelt als modulare Oberfläche für ein **API-Platform (Hydra / JSON-LD) Backend**.
+Mizuhara is a Nuxt/Vue frontend for a modular home-management system backed by an API Platform / Hydra JSON-LD backend.
 
-Der Fokus liegt auf:
+The project is currently focused on shopping lists and user management, with a broader roadmap for household, planning, accounting, documents, tasks, smart-home workflows, recipes, and local AI.
 
-- sauberer Architektur
-- strikter Typisierung
-- sehr gute Developer Experience
-- langfristiger Erweiterbarkeit (mehrere Backend-Module)
+## Current Features
 
----
+- Nuxt 4 / Vue 3 application with TypeScript
+- Mobile-first layout with drawer navigation
+- Internationalization with German and English locales
+- API Platform / Hydra collection handling via a shared API client
+- Automatic mock fallback when the backend is unavailable
+- Visible mock-data banner with reconnect action
+- MSW-powered local mock data for offline/demo usage
 
-## ✨ Tech Stack
+## Implemented Modules
 
-- **Nuxt 4** (Vue 3, Composition API)
-- **TypeScript** (strict)
-- **API Platform / Hydra (JSON-LD)**
-- **ESLint (Nuxt-offiziell, Flat Config)**
-- **Prettier**
-- **Just + Makefile** (plattformübergreifende Dev-Commands)
+### Users
 
----
+- List users
+- Create users
+- Edit users
+- Delete users
+- Use users as owners/contributors in shopping-list workflows
+- Mock users include `kira` and `misha`
 
-## 🧱 Projektziele
+### Shopping Lists
 
-- Mobile-First UI
-- modulare API-Anbindung
-- klare Trennung von
-  - API-Client
-  - Services
-  - Views / Components
-- konsequente statische Analyse & Clean Code
-- reproduzierbare Dev- & CI-Workflows
+- List shopping-list collections
+- Create, edit, and delete collections
+- Create, edit, and delete shopping lists inside collections
+- View shopping-list entries
+- Add entries with product, quantity, and user
+- Edit entries
+- Delete entries
+- Mark entries as acquired
+- Prompt to delete a shopping list when all entries are acquired
+- Mock shopping list includes example entries such as milk, bread, eggs, and butter
 
----
+### Catalog Basics
 
-## 📁 Projektstruktur (vereinfacht)
+- Product information is currently used to populate shopping-list entry product choices
+- Mock product data is available for offline/demo mode
+
+## Mock Fallback
+
+By default, Mizuhara runs in `auto` API mode:
+
+1. The frontend tries to reach the backend at `${NUXT_PUBLIC_API_BASE}/api`.
+2. If the backend does not respond within the configured timeout, MSW starts automatically.
+3. A banner shows that mock data is being displayed.
+4. The user can retry the backend connection from the banner or from the shopping-list refresh action.
+
+Environment options:
+
+```bash
+NUXT_PUBLIC_API_BASE=http://localhost:8000
+NUXT_PUBLIC_API_MODE=auto
+NUXT_PUBLIC_API_FALLBACK_TIMEOUT_MS=1800
+```
+
+Supported API modes:
+
+- `auto`: try backend first, fall back to mocks
+- `mock`: always use mocks
+- `live`: use backend only, no fallback
+
+MSW requires `public/mockServiceWorker.js`, generated with:
+
+```bash
+npx msw init public --save
+```
+
+## Tech Stack
+
+- Nuxt 4
+- Vue 3 Composition API
+- TypeScript
+- API Platform / Hydra JSON-LD
+- Nuxt i18n
+- Pinia
+- MSW
+- Nuxt Icon
+- ESLint
+- Prettier
+
+## Project Structure
 
 ```text
 .
-├─ components/          # UI-Komponenten
-├─ composables/         # API-Client & Reusable Logic
-│  └─ api/
-├─ services/            # Fachliche API-Services (pro Modul)
-├─ pages/               # Nuxt Pages / Routing
-├─ types/               # API- & Domain-Types (Hydra / DTOs)
-├─ public/
-├─ .nuxt/               # generated (nicht committen)
-├─ eslint.config.mjs
-├─ justfile
-├─ Makefile
-└─ nuxt.config.ts
-
+├─ components/              # Shared UI components
+├─ composables/api/         # API client and mock/reconnect state
+├─ config/                  # Navigation config
+├─ i18n/locales/            # German and English translations
+├─ modules/
+│  ├─ catalog/              # Product information services and mocks
+│  ├─ shoppingList/         # Shopping-list services, requests, mocks
+│  └─ user/                 # User services, requests, mocks
+├─ pages/                   # Nuxt routes
+├─ public/                  # Static assets and MSW worker
+├─ services/resource/       # Shared resource/IRI helpers
+├─ shared/mocks/            # MSW setup, handler aggregation, mock utilities
+└─ types/api/               # API resource types
 ```
 
-## 🚀 Projekt aufsetzen
+## Setup
 
-### Voraussetzungen
-
-- **Node.js ≥ 18** (empfohlen: 20+)
-- **npm**
-- Optional:
-  - **just** (Windows / Unix)
-  - **make** (Unix / macOS / CI)
-
----
-
-### Installation
+Install dependencies:
 
 ```bash
 npm install
-just install
-make install
-
 ```
 
-### Server
+Start the dev server:
 
 ```bash
 npm run dev
-just dev
-make dev
-
 ```
+
+Build:
+
+```bash
+npm run build
+```
+
+Preview production build:
+
+```bash
+npm run preview
+```
+
+Quality checks:
+
+```bash
+npm run lint
+npm run format:check
+npx nuxi typecheck
+```
+
+Pre-commit cleanup/check:
+
+```bash
+npm run precommit
+```
+
+## Backend Coverage
+
+The local backend API documentation currently exposes these relevant resources:
+
+- User
+- ProductInformation
+- ShoppingListCollection
+- ShoppingList
+- ShoppingListEntry
+- GenericTask
+- TaskEntry
+- InventoryItemCategory
+- InventoryStockItem
+- OnlineShop
+- PhysicalStore
+- ProductBrand
+- ProductSupplySource
+- StockInbound
+- StockOutbound
+- SupplySource
+
+Shopping-list and user CRUD workflows are implemented in the frontend. Product information is partially implemented as read-only support data for shopping-list entries.
+
+## Roadmap
+
+Planned modules based on the backend API documentation:
+
+- Product catalog
+- Inventory
+- Stock inbound
+- Stock outbound
+- Supply sources
+- Online shops
+- Physical stores
+- Product brands
+- Generic tasks
+- Task entries
+
+Planned modules beyond the current API documentation:
+
+- Tasks
+- Documents
+- Accounting
+- Smart Home
+- Recipes
+- Planner
+- Local AI
+
+## Development Principles
+
+- Keep features module-oriented under `modules/`
+- Use typed services for API access
+- Keep resource types under `types/api/`
+- Prefer endpoint constants over hard-coded API paths
+- Keep mock data close to the module it represents
+- Keep global mock wiring in `shared/mocks/`
+- Keep UI copy in i18n locale files
+- Make offline/demo states explicit to the user

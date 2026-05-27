@@ -47,11 +47,45 @@
     },
     "items": {
       "home": "Start",
+      "users": "User",
       "shoppingLists": "Einkaufslisten"
     }
   },
   "errors": {
     "unknown": "Unbekannter Fehler"
+  },
+  "users": {
+    "title": "User",
+    "subtitle": "Verwalte die User, die in Collections und Einkaufslisten verwendet werden.",
+    "fields": {
+      "username": "Username",
+      "email": "E-Mail",
+      "active": "Aktiv",
+      "createdAt": "Erstellt",
+      "updatedAt": "Aktualisiert"
+    },
+    "create": {
+      "title": "User erstellen",
+      "submitButton": "Erstellen",
+      "creatingButton": "Wird erstellt..."
+    },
+    "actions": {
+      "cancel": "Abbrechen",
+      "delete": "Loeschen",
+      "deleteConfirm": "Diesen User wirklich loeschen?",
+      "edit": "Bearbeiten",
+      "save": "Speichern"
+    },
+    "state": {
+      "active": "Aktiv",
+      "inactive": "Inaktiv",
+      "errorTitle": "Fehler",
+      "retry": "Erneut versuchen",
+      "loadingTitle": "User werden geladen...",
+      "loadingSubtitle": "User werden abgeholt.",
+      "emptyTitle": "Keine User",
+      "emptySubtitle": "Erstelle einen User, um ihn in Collections und Listen zu verwenden."
+    }
   },
   "shoppingLists": {
     "actions": {
@@ -134,6 +168,13 @@
         "addingButton": "Wird hinzugefügt…",
         "hint": "Produkt wird über IRI aufgelöst, User ebenfalls.",
         "product": "Produkt"
+      },
+      "completion": {
+        "title": "Alle Eintraege sind erledigt",
+        "text": "Moechtest du diese Einkaufsliste direkt loeschen?",
+        "laterButton": "Spaeter",
+        "deleteButton": "Liste loeschen",
+        "deletingButton": "Wird geloescht..."
       },
       "content": {
         "title": "Inhalt",

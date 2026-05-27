@@ -13,4 +13,16 @@ export const mockProductInformation: ProductInformation[] = [
     code: 'BREAD',
     productName: 'Brot',
   },
+  {
+    '@id': '/api/product_informations/3',
+    id: 3,
+    code: 'EGGS',
+    productName: 'Eier',
+  },
+  {
+    '@id': '/api/product_informations/4',
+    id: 4,
+    code: 'BUTTER',
+    productName: 'Butter',
+  },
 ]
