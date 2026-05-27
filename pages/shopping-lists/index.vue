@@ -14,7 +14,7 @@ const isLoading = ref(false)
 
 const collectionNumericId = (c: ShoppingListCollection): number | null => {
   if (typeof c.id === 'number') return c.id
-  return getNumericIdFromIri(c['@id'])
+  return getNumericIdFromIri(c['@id'] ?? '')
 }
 
 const collectionKey = (c: ShoppingListCollection): string => {
