@@ -6,6 +6,9 @@ help:
 install:
   npm install
 
+update:
+  npm update
+
 setup:
   npm install
   npm run postinstall

@@ -22,6 +22,9 @@ help:
 install:
 	$(PKG) install
 
+install:
+	$(PKG) update
+
 setup:
 	$(PKG) install
 	$(PKG) run postinstall
