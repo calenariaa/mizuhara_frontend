@@ -10,9 +10,9 @@
         <Icon class="burgerIcon" name="ph:list" mode="svg" aria-hidden="true" />
       </button>
 
-      <div class="title">
+      <NuxtLink class="title" to="/">
         <slot name="title">{{ t('app.title') }}</slot>
-      </div>
+      </NuxtLink>
 
       <div class="actions">
         <button
@@ -75,16 +75,9 @@ const selectedLocale = computed<LocaleCode>({
   color: var(--color-bg-white);
   background: linear-gradient(
     to bottom,
-    rgb(from var(--color-primary) r g b / 1) 0%,
-    rgb(from var(--color-primary) r g b / 0.9) 10%,
-    rgb(from var(--color-primary) r g b / 0.8) 20%,
-    rgb(from var(--color-primary) r g b / 0.7) 30%,
-    rgb(from var(--color-primary) r g b / 0.6) 40%,
-    rgb(from var(--color-primary) r g b / 0.5) 50%,
-    rgb(from var(--color-primary) r g b / 0.4) 60%,
-    rgb(from var(--color-primary) r g b / 0.3) 70%,
-    rgb(from var(--color-primary) r g b / 0.2) 80%,
-    rgb(from var(--color-primary) r g b / 0.1) 90%,
+    var(--color-primary) 0%,
+    color-mix(in srgb, var(--color-primary) 82%, var(--color-bg-light)) 46%,
+    color-mix(in srgb, var(--color-primary) 38%, var(--color-bg-light)) 78%,
     var(--color-bg-light) 100%
   );
 }
@@ -133,8 +126,17 @@ const selectedLocale = computed<LocaleCode>({
 }
 
 .title {
+  color: var(--color-bg-white);
   font-weight: 800;
   letter-spacing: 0.3px;
+  text-decoration: none;
+  width: fit-content;
+}
+
+.title:focus {
+  outline: 2px solid rgb(255 255 255 / 0.55);
+  outline-offset: 4px;
+  border-radius: 4px;
 }
 
 .actions {
