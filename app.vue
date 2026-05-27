@@ -62,7 +62,7 @@ useHead(() => ({
 .mockBanner {
   position: sticky;
   top: 0;
-  z-index: 50;
+  z-index: 1000;
   padding: 10px 16px;
   border-bottom: 1px solid var(--color-border);
   background: #fff7ed;

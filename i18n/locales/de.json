@@ -47,6 +47,7 @@
     },
     "items": {
       "home": "Start",
+      "tasks": "Tasks",
       "users": "User",
       "shoppingLists": "Einkaufslisten"
     }
@@ -85,6 +86,52 @@
       "loadingSubtitle": "User werden abgeholt.",
       "emptyTitle": "Keine User",
       "emptySubtitle": "Erstelle einen User, um ihn in Collections und Listen zu verwenden."
+    }
+  },
+  "tasks": {
+    "title": "Tasks",
+    "subtitle": "Verwalte Aufgaben und ihre einzelnen Schritte.",
+    "unassigned": "Nicht zugewiesen",
+    "fields": {
+      "assignee": "Zugewiesen an",
+      "status": "Status"
+    },
+    "status": {
+      "open": "offen",
+      "inProgress": "in progress",
+      "completed": "erledigt",
+      "unknown": "unbekannt"
+    },
+    "card": {
+      "title": "Task #{id}"
+    },
+    "create": {
+      "title": "Task erstellen",
+      "submitButton": "Erstellen",
+      "creatingButton": "Wird erstellt..."
+    },
+    "entries": {
+      "empty": "Noch keine Eintraege",
+      "openCreate": "Eintrag hinzufuegen",
+      "descriptionPlaceholder": "Beschreibung",
+      "addButton": "Hinzufuegen"
+    },
+    "actions": {
+      "cancel": "Abbrechen",
+      "delete": "Loeschen",
+      "deleteTaskConfirm": "Diesen Task wirklich loeschen?",
+      "edit": "Bearbeiten",
+      "complete": "Abhaken",
+      "reopen": "Wieder oeffnen",
+      "save": "Speichern"
+    },
+    "state": {
+      "errorTitle": "Fehler",
+      "retry": "Erneut versuchen",
+      "loadingTitle": "Tasks werden geladen...",
+      "loadingSubtitle": "Tasks werden abgeholt.",
+      "emptyTitle": "Keine Tasks",
+      "emptySubtitle": "Erstelle einen Task, um Eintraege zu sammeln."
     }
   },
   "shoppingLists": {

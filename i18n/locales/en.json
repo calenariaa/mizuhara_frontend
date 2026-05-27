@@ -50,6 +50,7 @@
     },
     "items": {
       "home": "Home",
+      "tasks": "Tasks",
       "users": "Users",
       "shoppingLists": "Shopping lists"
     }
@@ -85,6 +86,52 @@
       "loadingSubtitle": "Fetching users.",
       "emptyTitle": "No users",
       "emptySubtitle": "Create a user to use them in collections and lists."
+    }
+  },
+  "tasks": {
+    "title": "Tasks",
+    "subtitle": "Manage tasks and their individual entries.",
+    "unassigned": "Unassigned",
+    "fields": {
+      "assignee": "Assignee",
+      "status": "Status"
+    },
+    "status": {
+      "open": "open",
+      "inProgress": "in progress",
+      "completed": "completed",
+      "unknown": "unknown"
+    },
+    "card": {
+      "title": "Task #{id}"
+    },
+    "create": {
+      "title": "Create task",
+      "submitButton": "Create",
+      "creatingButton": "Creating..."
+    },
+    "entries": {
+      "empty": "No entries yet",
+      "openCreate": "Add entry",
+      "descriptionPlaceholder": "Description",
+      "addButton": "Add"
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "deleteTaskConfirm": "Delete this task?",
+      "edit": "Edit",
+      "complete": "Complete",
+      "reopen": "Reopen",
+      "save": "Save"
+    },
+    "state": {
+      "errorTitle": "Error",
+      "retry": "Retry",
+      "loadingTitle": "Loading tasks...",
+      "loadingSubtitle": "Fetching tasks.",
+      "emptyTitle": "No tasks",
+      "emptySubtitle": "Create a task to collect entries."
     }
   },
   "shoppingLists": {
