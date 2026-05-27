@@ -4,11 +4,11 @@ import type { GenericTask } from '@/types/api/tasks/genericTask'
 import type { User } from '@/types/api/users/user'
 
 import { useHead, useI18n } from '#imports'
+import { CLIENT_STORAGE_KEYS } from '@/config/clientStorage'
 import { shoppingListCollectionService } from '@/modules/shoppingList/services/shoppingListCollectionService'
 import { genericTaskService } from '@/modules/tasks/services/genericTaskService'
 import { userService } from '@/modules/user/services/userService'
 
-const HOME_INTRO_STORAGE_KEY = 'mizuhara.homeIntroHidden'
 const PAYPAL_DONATION_URL =
   'https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=kira.reitz%40gmx.de&currency_code=EUR'
 
@@ -91,7 +91,7 @@ const dashboardCards = computed(() => [
 
 const hideIntro = (): void => {
   isIntroHidden.value = true
-  localStorage.setItem(HOME_INTRO_STORAGE_KEY, 'true')
+  localStorage.setItem(CLIENT_STORAGE_KEYS.homeIntroHidden, 'true')
 }
 
 const loadDashboard = async (): Promise<void> => {
@@ -116,7 +116,7 @@ const loadDashboard = async (): Promise<void> => {
 }
 
 onMounted(() => {
-  isIntroHidden.value = localStorage.getItem(HOME_INTRO_STORAGE_KEY) === 'true'
+  isIntroHidden.value = localStorage.getItem(CLIENT_STORAGE_KEYS.homeIntroHidden) === 'true'
   void loadDashboard()
 })
 

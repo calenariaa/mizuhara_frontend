@@ -19,7 +19,8 @@
   "header": {
     "aria": {
       "openMenu": "Menü öffnen",
-      "language": "Sprache"
+      "language": "Sprache",
+      "toggleTheme": "Dark Mode umschalten"
     }
   },
   "home": {

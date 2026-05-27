@@ -22,7 +22,8 @@
   "header": {
     "aria": {
       "openMenu": "Open menu",
-      "language": "Language"
+      "language": "Language",
+      "toggleTheme": "Toggle dark mode"
     }
   },
   "home": {

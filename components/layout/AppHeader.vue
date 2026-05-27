@@ -15,6 +15,15 @@
       </div>
 
       <div class="actions">
+        <button
+          class="themeButton"
+          type="button"
+          :aria-label="t('header.aria.toggleTheme')"
+          @click="toggleColorMode"
+        >
+          <Icon :name="colorMode === 'dark' ? 'lucide:sun' : 'lucide:moon'" size="18" />
+        </button>
+
         <select v-model="selectedLocale" class="langSelect" :aria-label="t('header.aria.language')">
           <option v-for="option in localeOptions" :key="option.code" :value="option.code">
             {{ option.label }}
@@ -31,6 +40,7 @@
 import { computed } from 'vue'
 
 import { useI18n } from '#imports'
+import { useColorMode } from '@/composables/useColorMode'
 
 type LocaleCode = 'de' | 'en'
 
@@ -39,6 +49,7 @@ const localeCodes = ['en', 'de'] as const
 const emit = defineEmits<{ (e: 'toggle-menu'): void }>()
 
 const { t, locale, setLocale } = useI18n()
+const { colorMode, toggleColorMode } = useColorMode()
 
 const localeOptions = computed(() =>
   localeCodes.map((code) => ({
@@ -132,6 +143,7 @@ const selectedLocale = computed<LocaleCode>({
   gap: 8px;
 }
 
+.themeButton,
 .langSelect {
   height: 36px;
   border-radius: 10px;
@@ -145,11 +157,20 @@ const selectedLocale = computed<LocaleCode>({
   outline: none;
 }
 
+.themeButton {
+  width: 36px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .langSelect option {
   color: var(--color-text-primary);
   background: var(--color-bg-white);
 }
 
+.themeButton:focus,
 .langSelect:focus {
   border-color: rgb(255 255 255 / 0.55);
 }
