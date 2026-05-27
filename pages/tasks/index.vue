@@ -19,6 +19,7 @@ type TaskCard = {
   task: GenericTask
   id: number | null
   key: string
+  name: string
   assigneeIri: string
   assigneeLabel: string
   status: string
@@ -36,9 +37,11 @@ const errorMessage = ref<string | null>(null)
 
 const isCreatingTask = ref(false)
 const createTaskError = ref<string | null>(null)
+const newTaskName = ref('')
 const newTaskAssigneeIri = ref('')
 
 const editingTaskId = ref<number | null>(null)
+const editTaskName = ref('')
 const editTaskAssigneeIri = ref('')
 const editTaskStatus = ref('')
 const isSavingTask = ref(false)
@@ -116,6 +119,7 @@ const taskCards = computed<TaskCard[]>(() =>
       task,
       id,
       key: getIri(task) || String(id ?? 'task'),
+      name: task.name?.trim() || t('tasks.card.titleFallback', { id: id ?? '-' }),
       assigneeIri: userIriFromValue(assignee),
       assigneeLabel: userLabelFromValue(assignee),
       status: task.status ?? '',
@@ -151,15 +155,20 @@ const loadTasks = async (): Promise<void> => {
 }
 
 const createTask = async (): Promise<void> => {
+  const taskName = newTaskName.value.trim()
+  if (!taskName) return
+
   isCreatingTask.value = true
   createTaskError.value = null
 
   try {
     const createdTask = await genericTaskService().create({
+      name: taskName,
       assignee: newTaskAssigneeIri.value || undefined,
     })
 
     tasks.value = [createdTask, ...tasks.value]
+    newTaskName.value = ''
   } catch (err) {
     createTaskError.value = err instanceof Error ? err.message : t('errors.unknown')
   } finally {
@@ -171,6 +180,7 @@ const startEditTask = (task: TaskCard): void => {
   if (task.id === null) return
 
   editingTaskId.value = task.id
+  editTaskName.value = task.name
   editTaskAssigneeIri.value = task.assigneeIri
   editTaskStatus.value = task.status
   taskActionError.value = null
@@ -178,6 +188,7 @@ const startEditTask = (task: TaskCard): void => {
 
 const cancelEditTask = (): void => {
   editingTaskId.value = null
+  editTaskName.value = ''
   editTaskAssigneeIri.value = ''
   editTaskStatus.value = ''
   taskActionError.value = null
@@ -185,12 +196,15 @@ const cancelEditTask = (): void => {
 
 const saveTask = async (task: TaskCard): Promise<void> => {
   if (task.id === null) return
+  const taskName = editTaskName.value.trim()
+  if (!taskName) return
 
   isSavingTask.value = true
   taskActionError.value = null
 
   try {
     const updatedTask = await genericTaskService().update(task.id, {
+      name: taskName,
       assignee: editTaskAssigneeIri.value || null,
       status: editTaskStatus.value || null,
     })
@@ -353,6 +367,17 @@ onMounted(() => {
       <div class="panelTitle">{{ t('tasks.create.title') }}</div>
       <div class="formGrid">
         <label class="field">
+          <span>{{ t('tasks.fields.name') }}</span>
+          <input
+            v-model="newTaskName"
+            class="input"
+            type="text"
+            :placeholder="t('tasks.create.namePlaceholder')"
+            :disabled="isCreatingTask"
+          />
+        </label>
+
+        <label class="field">
           <span>{{ t('tasks.fields.assignee') }}</span>
           <select v-model="newTaskAssigneeIri" class="input" :disabled="isCreatingTask">
             <option value="">{{ t('tasks.unassigned') }}</option>
@@ -362,7 +387,7 @@ onMounted(() => {
           </select>
         </label>
 
-        <button class="primaryButton" type="submit" :disabled="isCreatingTask">
+        <button class="primaryButton" type="submit" :disabled="isCreatingTask || !newTaskName.trim()">
           {{ isCreatingTask ? t('tasks.create.creatingButton') : t('tasks.create.submitButton') }}
         </button>
       </div>
@@ -387,6 +412,11 @@ onMounted(() => {
         <template v-if="editingTaskId === task.id">
           <div class="editGrid">
             <label class="field">
+              <span>{{ t('tasks.fields.name') }}</span>
+              <input v-model="editTaskName" class="input" type="text" />
+            </label>
+
+            <label class="field">
               <span>{{ t('tasks.fields.assignee') }}</span>
               <select v-model="editTaskAssigneeIri" class="input">
                 <option value="">{{ t('tasks.unassigned') }}</option>
@@ -408,7 +438,12 @@ onMounted(() => {
             <button class="secondaryButton" type="button" :disabled="isSavingTask" @click="cancelEditTask">
               {{ t('tasks.actions.cancel') }}
             </button>
-            <button class="primaryButton" type="button" :disabled="isSavingTask" @click="saveTask(task)">
+            <button
+              class="primaryButton"
+              type="button"
+              :disabled="isSavingTask || !editTaskName.trim()"
+              @click="saveTask(task)"
+            >
               {{ t('tasks.actions.save') }}
             </button>
           </div>
@@ -417,7 +452,7 @@ onMounted(() => {
         <template v-else>
           <div class="cardHeader">
             <div>
-              <div class="cardTitle">{{ t('tasks.card.title', { id: task.id ?? '-' }) }}</div>
+              <div class="cardTitle">{{ task.name }}</div>
               <div class="cardSub">{{ task.assigneeLabel }}</div>
             </div>
             <div class="cardStatus">

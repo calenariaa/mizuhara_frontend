@@ -118,6 +118,7 @@
     "subtitle": "Manage tasks and their individual entries.",
     "unassigned": "Unassigned",
     "fields": {
+      "name": "Name",
       "assignee": "Assignee",
       "status": "Status"
     },
@@ -128,10 +129,11 @@
       "unknown": "unknown"
     },
     "card": {
-      "title": "Task #{id}"
+      "titleFallback": "Task #{id}"
     },
     "create": {
       "title": "Create task",
+      "namePlaceholder": "e.g. Clean the apartment",
       "submitButton": "Create",
       "creatingButton": "Creating..."
     },

@@ -6,10 +6,12 @@ import { mockUsers } from '@/modules/user/mocks/data/users'
 import { jsonCollection, jsonNotFound, matchApiPath, nextNumericId } from '@/shared/mocks/utils'
 
 type CreateGenericTaskBody = {
+  name?: string
   assignee?: string
 }
 
 type UpdateGenericTaskBody = {
+  name?: string | null
   assignee?: string | null
   status?: string | null
 }
@@ -61,6 +63,7 @@ export const taskHandlers = [
     const createdTask = {
       '@id': `${GENERIC_TASKS_ENDPOINT}/${taskId}`,
       id: taskId,
+      name: body.name ?? null,
       assignee: findUser(body.assignee),
       status: 'open',
       startedAt: null,
@@ -82,6 +85,7 @@ export const taskHandlers = [
       return jsonNotFound('GenericTask')
     }
 
+    if (body.name !== undefined) task.name = body.name
     if (body.assignee !== undefined) task.assignee = findUser(body.assignee)
     if (body.status !== undefined) task.status = body.status
 

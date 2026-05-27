@@ -1,8 +1,10 @@
 export type CreateGenericTaskRequest = {
+  name?: string
   assignee?: string
 }
 
 export type UpdateGenericTaskRequest = {
+  name?: string | null
   assignee?: string | null
   status?: string | null
 }

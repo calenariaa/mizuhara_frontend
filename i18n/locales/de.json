@@ -118,6 +118,7 @@
     "subtitle": "Verwalte Aufgaben und ihre einzelnen Schritte.",
     "unassigned": "Nicht zugewiesen",
     "fields": {
+      "name": "Name",
       "assignee": "Zugewiesen an",
       "status": "Status"
     },
@@ -128,10 +129,11 @@
       "unknown": "unbekannt"
     },
     "card": {
-      "title": "Aufgabe #{id}"
+      "titleFallback": "Aufgabe #{id}"
     },
     "create": {
       "title": "Aufgabe erstellen",
+      "namePlaceholder": "z.B. Wohnung aufräumen",
       "submitButton": "Erstellen",
       "creatingButton": "Wird erstellt..."
     },
