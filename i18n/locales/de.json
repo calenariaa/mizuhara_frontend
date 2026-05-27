@@ -181,7 +181,7 @@
         "namePlaceholder": "z.B. Haushalt",
         "descriptionLabel": "Beschreibung",
         "descriptionPlaceholder": "Optional",
-        "ownerLabel": "Owner",
+        "ownerLabel": "User",
         "ownerPlaceholder": "User wählen",
         "submitButton": "Erstellen",
         "creatingButton": "Wird erstellt..."
