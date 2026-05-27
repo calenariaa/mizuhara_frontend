@@ -7,7 +7,6 @@ export interface CreateShoppingListCollectionRequest {
 export interface CreateShoppingListRequest {
   name: string
   shoppingListCollection?: string
-  addedBy?: string
 }
 
 export interface CreateShoppingListEntryRequest {

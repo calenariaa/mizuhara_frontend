@@ -36,6 +36,13 @@
     "de": "Deutsch",
     "en": "English"
   },
+  "mockApi": {
+    "fallback": "Backend is not reachable. Mock data is being displayed.",
+    "manual": "Mock mode is active. Mock data is being displayed.",
+    "reconnect": "Reconnect",
+    "reconnecting": "Connecting...",
+    "reconnectFailed": "Backend is still not reachable."
+  },
   "nav": {
     "categories": {
       "general": "General",
@@ -57,6 +64,17 @@
     "collections": {
       "title": "Shopping collections",
       "subtitle": "Collections",
+      "create": {
+        "title": "Create collection",
+        "nameLabel": "Name",
+        "namePlaceholder": "e.g. Household",
+        "descriptionLabel": "Description",
+        "descriptionPlaceholder": "Optional",
+        "ownerLabel": "Owner",
+        "ownerPlaceholder": "Select user",
+        "submitButton": "Create",
+        "creatingButton": "Creating..."
+      },
       "actions": {
         "refreshAria": "Refresh",
         "openCollection": "Open collection"
@@ -73,6 +91,13 @@
     "collection": {
       "titleFallback": "Collection",
       "listCount": "{count} list | {count} lists",
+      "createList": {
+        "title": "Create list",
+        "nameLabel": "Name",
+        "namePlaceholder": "e.g. Weekly groceries",
+        "submitButton": "Create",
+        "creatingButton": "Creating..."
+      },
       "empty": {
         "title": "No lists in this collection",
         "subtitle": "Create a shopping list in the backend and link it."

@@ -5,6 +5,7 @@ import type { ShoppingListCollection } from '@/types/api/shoppingList/shoppingLi
 import { useI18n, useLocalePath } from '#imports'
 import AppBreadcrumbs from '@/components/AppBreadcrumbs.vue'
 import { shoppingListCollectionService } from '@/modules/shoppingList/services/shoppingListCollectionService'
+import { shoppingListService } from '@/modules/shoppingList/services/shoppingListService'
 
 type HasIri = { '@id'?: string }
 
@@ -31,6 +32,9 @@ const collection = ref<ShoppingListCollection | null>(null)
 const lists = ref<ShoppingList[]>([])
 const pending = ref(false)
 const error = ref<string | null>(null)
+const isCreatingList = ref(false)
+const createListError = ref<string | null>(null)
+const newListName = ref('')
 
 const { t } = useI18n()
 const localePath = useLocalePath()
@@ -38,6 +42,7 @@ const localePath = useLocalePath()
 const load = async (): Promise<void> => {
   pending.value = true
   error.value = null
+  createListError.value = null
 
   try {
     const c = await shoppingListCollectionService().getById(collectionId.value)
@@ -51,6 +56,34 @@ const load = async (): Promise<void> => {
     lists.value = []
   } finally {
     pending.value = false
+  }
+}
+
+const collectionIri = computed(() => {
+  if (!collection.value) return ''
+  return getIri(collection.value) || `/api/shopping_list_collections/${collectionId.value}`
+})
+
+const createList = async (): Promise<void> => {
+  const name = newListName.value.trim()
+
+  if (!name || !collectionIri.value) return
+
+  isCreatingList.value = true
+  createListError.value = null
+
+  try {
+    const created = await shoppingListService().create({
+      name,
+      shoppingListCollection: collectionIri.value,
+    })
+
+    lists.value = [created, ...lists.value]
+    newListName.value = ''
+  } catch (err) {
+    createListError.value = err instanceof Error ? err.message : t('errors.unknown')
+  } finally {
+    isCreatingList.value = false
   }
 }
 
@@ -76,6 +109,37 @@ const listCountLabel = computed(() =>
         <p class="subtitle">{{ listCountLabel }}</p>
       </div>
     </header>
+
+    <form v-if="!pending && !error" class="createPanel" @submit.prevent="createList">
+      <div class="createTitle">{{ t('shoppingLists.collection.createList.title') }}</div>
+
+      <div class="createRow">
+        <label class="field">
+          <span>{{ t('shoppingLists.collection.createList.nameLabel') }}</span>
+          <input
+            v-model="newListName"
+            class="input"
+            type="text"
+            :placeholder="t('shoppingLists.collection.createList.namePlaceholder')"
+            :disabled="isCreatingList"
+          />
+        </label>
+
+        <button
+          class="createButton"
+          type="submit"
+          :disabled="isCreatingList || !newListName.trim() || !collectionIri"
+        >
+          {{
+            isCreatingList
+              ? t('shoppingLists.collection.createList.creatingButton')
+              : t('shoppingLists.collection.createList.submitButton')
+          }}
+        </button>
+      </div>
+
+      <div v-if="createListError" class="formError">{{ createListError }}</div>
+    </form>
 
     <div v-if="error" class="stateCard">
       <div class="stateTitle">{{ t('shoppingLists.state.errorTitle') }}</div>
@@ -162,6 +226,76 @@ const listCountLabel = computed(() =>
 .stack {
   display: grid;
   gap: 12px;
+}
+
+.createPanel {
+  background: var(--color-bg-white);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 14px;
+  box-shadow: var(--shadow-elevated);
+  display: grid;
+  gap: 12px;
+}
+
+.createTitle {
+  font-weight: 900;
+  color: var(--color-text-primary);
+}
+
+.createRow {
+  display: grid;
+  gap: 10px;
+}
+
+@media (min-width: 768px) {
+  .createRow {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+  }
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+}
+
+.input {
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-bg-light);
+  color: var(--color-text-primary);
+  padding: 8px 10px;
+  font: inherit;
+}
+
+.input:disabled {
+  opacity: 0.65;
+}
+
+.createButton {
+  min-height: 40px;
+  border: 1px solid var(--color-border);
+  background: var(--color-primary-soft);
+  color: var(--color-text-primary);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.createButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.formError {
+  color: var(--color-danger, #b42318);
+  font-size: 12px;
 }
 
 .grid {

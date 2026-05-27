@@ -33,6 +33,13 @@
     "de": "Deutsch",
     "en": "English"
   },
+  "mockApi": {
+    "fallback": "Backend nicht erreichbar. Es werden Mock-Daten angezeigt.",
+    "manual": "Mock-Modus aktiv. Es werden Mock-Daten angezeigt.",
+    "reconnect": "Erneut verbinden",
+    "reconnecting": "Verbinde...",
+    "reconnectFailed": "Backend weiterhin nicht erreichbar."
+  },
   "nav": {
     "categories": {
       "general": "Allgemein",
@@ -57,6 +64,17 @@
     "collections": {
       "title": "Einkaufs-Collections",
       "subtitle": "Collections",
+      "create": {
+        "title": "Collection erstellen",
+        "nameLabel": "Name",
+        "namePlaceholder": "z.B. Haushalt",
+        "descriptionLabel": "Beschreibung",
+        "descriptionPlaceholder": "Optional",
+        "ownerLabel": "Owner",
+        "ownerPlaceholder": "User waehlen",
+        "submitButton": "Erstellen",
+        "creatingButton": "Wird erstellt..."
+      },
       "actions": {
         "refreshAria": "Neu laden",
         "openCollection": "Collection öffnen"
@@ -73,6 +91,13 @@
     "collection": {
       "titleFallback": "Collection",
       "listCount": "{count} Liste | {count} Listen",
+      "createList": {
+        "title": "Liste erstellen",
+        "nameLabel": "Name",
+        "namePlaceholder": "z.B. Wocheneinkauf",
+        "submitButton": "Erstellen",
+        "creatingButton": "Wird erstellt..."
+      },
       "empty": {
         "title": "Keine Listen in dieser Collection",
         "subtitle": "Lege im Backend eine ShoppingList an und verknüpfe sie."
