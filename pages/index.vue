@@ -9,8 +9,7 @@ import { shoppingListCollectionService } from '@/modules/shoppingList/services/s
 import { genericTaskService } from '@/modules/tasks/services/genericTaskService'
 import { userService } from '@/modules/user/services/userService'
 
-const PAYPAL_DONATION_URL =
-  'https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=kira.reitz%40gmx.de&currency_code=EUR'
+const KO_FI_DONATION_URL = 'https://ko-fi.com/I4N620AYLT'
 
 const { t } = useI18n()
 
@@ -136,9 +135,12 @@ useHead(() => ({
         <p class="introText">{{ t('home.intro.opensource') }}</p>
 
         <div class="introActions">
-          <a class="primaryLink" :href="PAYPAL_DONATION_URL" target="_blank" rel="noopener noreferrer">
-            <Icon name="lucide:coffee" size="18" />
-            <span>{{ t('home.intro.coffee') }}</span>
+          <a class="koFiLink" :href="KO_FI_DONATION_URL" target="_blank" rel="noopener noreferrer">
+            <img
+              class="koFiImage"
+              src="https://storage.ko-fi.com/cdn/kofi4.png?v=6"
+              alt="Buy Me a Coffee at ko-fi.com"
+            />
           </a>
 
           <button class="hideButton" type="button" @click="hideIntro">
@@ -289,6 +291,17 @@ useHead(() => ({
 .primaryLink {
   background: var(--color-primary-soft);
   color: var(--color-text-primary);
+}
+
+.koFiLink {
+  display: inline-flex;
+  align-items: center;
+  height: 36px;
+}
+
+.koFiImage {
+  height: 36px;
+  border: 0;
 }
 
 .hideButton,
