@@ -584,7 +584,7 @@ const addEntry = async (): Promise<void> => {
                     <button
                       class="iconBtn"
                       type="button"
-                      aria-label="Save"
+                      :aria-label="t('shoppingLists.actions.save')"
                       :disabled="savingEdit || !editProductIri"
                       @click="saveEdit(r.entry)"
                     >
@@ -594,7 +594,7 @@ const addEntry = async (): Promise<void> => {
                     <button
                       class="iconBtn"
                       type="button"
-                      aria-label="Cancel"
+                      :aria-label="t('shoppingLists.actions.cancel')"
                       :disabled="savingEdit"
                       @click="cancelEdit"
                     >
@@ -606,7 +606,7 @@ const addEntry = async (): Promise<void> => {
                     <button
                       class="iconBtn"
                       type="button"
-                      aria-label="Edit"
+                      :aria-label="t('shoppingLists.actions.edit')"
                       @click="startEdit(r.entry)"
                     >
                       <Icon name="lucide:pencil" size="18" />

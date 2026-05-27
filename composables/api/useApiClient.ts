@@ -50,8 +50,15 @@ export function useApiClient() {
       headers: { 'Content-Type': 'application/merge-patch+json' },
     })
 
+  const put = <T, B extends object>(pathOrIri: string, body: B): Promise<T> =>
+    apiFetch<T>(pathOrIri, {
+      method: 'PUT',
+      body,
+      headers: { 'Content-Type': 'application/ld+json' },
+    })
+
   const del = (pathOrIri: string): Promise<unknown> =>
     apiFetch<unknown>(pathOrIri, { method: 'DELETE' })
 
-  return { apiFetch, getCollection, getItem, post, patch, del }
+  return { apiFetch, getCollection, getItem, post, patch, put, del }
 }

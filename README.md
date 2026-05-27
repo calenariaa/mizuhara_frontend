@@ -2,7 +2,7 @@
 
 Mizuhara is a Nuxt/Vue frontend for a modular home-management system backed by an API Platform / Hydra JSON-LD backend.
 
-The project is currently focused on shopping lists and user management, with a broader roadmap for household, planning, accounting, documents, tasks, smart-home workflows, recipes, and local AI.
+The project is currently focused on shopping lists, user management, and generic tasks, with a broader roadmap for household inventory, planning, accounting, documents, smart-home workflows, recipes, and local AI.
 
 ## Current Features
 
@@ -11,7 +11,8 @@ The project is currently focused on shopping lists and user management, with a b
 - Internationalization with German and English locales
 - API Platform / Hydra collection handling via a shared API client
 - Automatic mock fallback when the backend is unavailable
-- Visible mock-data banner with reconnect action
+- Visible mock-data banner with reconnect action that stays above the app while scrolling
+- Refresh/reconnect actions for retrying the live backend after mock fallback
 - MSW-powered local mock data for offline/demo usage
 
 ## Implemented Modules
@@ -22,7 +23,7 @@ The project is currently focused on shopping lists and user management, with a b
 - Create users
 - Edit users
 - Delete users
-- Use users as owners/contributors in shopping-list workflows
+- Use users as owners/contributors in shopping-list and task workflows
 - Mock users include `kira` and `misha`
 
 ### Shopping Lists
@@ -38,6 +39,18 @@ The project is currently focused on shopping lists and user management, with a b
 - Prompt to delete a shopping list when all entries are acquired
 - Mock shopping list includes example entries such as milk, bread, eggs, and butter
 
+### Tasks
+
+- List generic tasks
+- Create tasks and assign them to users
+- Edit task assignee and status
+- Delete tasks
+- Mark tasks as completed and reopen them
+- List task entries
+- Create, edit, and delete task entries
+- Show API status values in a readable format, for example `in progress`
+- MSW mock data for tasks and task entries
+
 ### Catalog Basics
 
 - Product information is currently used to populate shopping-list entry product choices
@@ -50,7 +63,7 @@ By default, Mizuhara runs in `auto` API mode:
 1. The frontend tries to reach the backend at `${NUXT_PUBLIC_API_BASE}/api`.
 2. If the backend does not respond within the configured timeout, MSW starts automatically.
 3. A banner shows that mock data is being displayed.
-4. The user can retry the backend connection from the banner or from the shopping-list refresh action.
+4. The user can retry the backend connection from the banner or from module refresh actions.
 
 Environment options:
 
@@ -89,19 +102,20 @@ npx msw init public --save
 
 ```text
 .
-├─ components/              # Shared UI components
-├─ composables/api/         # API client and mock/reconnect state
-├─ config/                  # Navigation config
-├─ i18n/locales/            # German and English translations
-├─ modules/
-│  ├─ catalog/              # Product information services and mocks
-│  ├─ shoppingList/         # Shopping-list services, requests, mocks
-│  └─ user/                 # User services, requests, mocks
-├─ pages/                   # Nuxt routes
-├─ public/                  # Static assets and MSW worker
-├─ services/resource/       # Shared resource/IRI helpers
-├─ shared/mocks/            # MSW setup, handler aggregation, mock utilities
-└─ types/api/               # API resource types
+|-- components/              # Shared UI components
+|-- composables/api/         # API client and mock/reconnect state
+|-- config/                  # Navigation config
+|-- i18n/locales/            # German and English translations
+|-- modules/
+|   |-- catalog/             # Product information services and mocks
+|   |-- shoppingList/        # Shopping-list services, requests, mocks
+|   |-- tasks/               # Task services, requests, mocks
+|   `-- user/                # User services, requests, mocks
+|-- pages/                   # Nuxt routes
+|-- public/                  # Static assets and MSW worker
+|-- services/resource/       # Shared resource/IRI helpers
+|-- shared/mocks/            # MSW setup, handler aggregation, mock utilities
+`-- types/api/               # API resource types
 ```
 
 ## Setup
@@ -165,7 +179,9 @@ The local backend API documentation currently exposes these relevant resources:
 - StockOutbound
 - SupplySource
 
-Shopping-list and user CRUD workflows are implemented in the frontend. Product information is partially implemented as read-only support data for shopping-list entries.
+Shopping-list, user, and task workflows are implemented in the frontend. Product information is partially implemented as read-only support data for shopping-list entries.
+
+The current backend API documentation does not expose concurrency primitives such as ETags, resource versions, locks, lock owners, lock expiry, Mercure, SSE, or WebSocket channels. Multi-user conflict handling should therefore be added backend-side before the frontend can guarantee safe concurrent editing.
 
 ## Roadmap
 
@@ -179,12 +195,10 @@ Planned modules based on the backend API documentation:
 - Online shops
 - Physical stores
 - Product brands
-- Generic tasks
-- Task entries
+- Multi-user conflict handling with optimistic locking, optional soft locks, and live updates
 
 Planned modules beyond the current API documentation:
 
-- Tasks
 - Documents
 - Accounting
 - Smart Home

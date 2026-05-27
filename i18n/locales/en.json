@@ -29,8 +29,32 @@
     "meta": {
       "title": "Home"
     },
-    "title": "Nuxt is running",
-    "subtitle": "Everything looks good."
+    "intro": {
+      "eyebrow": "Welcome to Mizuhara",
+      "title": "A home dashboard for everyday life",
+      "text": "Mizuhara collects small tools for household tasks, planning, and shared organization in one place.",
+      "makers": "It is built by Kira and Misha, two developers who wanted to make their own lives a little easier.",
+      "opensource": "The project is open source. Ideas, improvements, and feedback are welcome. Have fun using and shaping it.",
+      "coffee": "Buy us a coffee",
+      "hide": "Hide note"
+    },
+    "dashboard": {
+      "title": "Current status",
+      "subtitle": "A quick overview of open lists, tasks, and users. Click a card to open the related module.",
+      "errorTitle": "Dashboard could not be loaded",
+      "shopping": {
+        "title": "Open shopping lists",
+        "meta": "of {total} lists total"
+      },
+      "tasks": {
+        "title": "Open tasks",
+        "meta": "of {total} tasks total"
+      },
+      "users": {
+        "title": "Users",
+        "meta": "for shared usage"
+      }
+    }
   },
   "locales": {
     "de": "Deutsch",
@@ -50,6 +74,7 @@
     },
     "items": {
       "home": "Home",
+      "tasks": "Tasks",
       "users": "Users",
       "shoppingLists": "Shopping lists"
     }
@@ -85,6 +110,52 @@
       "loadingSubtitle": "Fetching users.",
       "emptyTitle": "No users",
       "emptySubtitle": "Create a user to use them in collections and lists."
+    }
+  },
+  "tasks": {
+    "title": "Tasks",
+    "subtitle": "Manage tasks and their individual entries.",
+    "unassigned": "Unassigned",
+    "fields": {
+      "assignee": "Assignee",
+      "status": "Status"
+    },
+    "status": {
+      "open": "open",
+      "inProgress": "in progress",
+      "completed": "completed",
+      "unknown": "unknown"
+    },
+    "card": {
+      "title": "Task #{id}"
+    },
+    "create": {
+      "title": "Create task",
+      "submitButton": "Create",
+      "creatingButton": "Creating..."
+    },
+    "entries": {
+      "empty": "No entries yet",
+      "openCreate": "Add entry",
+      "descriptionPlaceholder": "Description",
+      "addButton": "Add"
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "deleteTaskConfirm": "Delete this task?",
+      "edit": "Edit",
+      "complete": "Complete",
+      "reopen": "Reopen",
+      "save": "Save"
+    },
+    "state": {
+      "errorTitle": "Error",
+      "retry": "Retry",
+      "loadingTitle": "Loading tasks...",
+      "loadingSubtitle": "Fetching tasks.",
+      "emptyTitle": "No tasks",
+      "emptySubtitle": "Create a task to collect entries."
     }
   },
   "shoppingLists": {
