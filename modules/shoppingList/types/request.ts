@@ -4,9 +4,19 @@ export interface CreateShoppingListCollectionRequest {
   owner: string
 }
 
+export type UpdateShoppingListCollectionRequest = {
+  name?: string
+  description?: string | null
+  owner?: string
+}
+
 export interface CreateShoppingListRequest {
   name: string
   shoppingListCollection?: string
+}
+
+export type UpdateShoppingListRequest = {
+  name?: string
 }
 
 export interface CreateShoppingListEntryRequest {

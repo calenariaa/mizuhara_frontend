@@ -25,6 +25,10 @@ const error = ref<string | null>(null)
 const isCreatingList = ref(false)
 const createListError = ref<string | null>(null)
 const newListName = ref('')
+const editingListId = ref<number | null>(null)
+const editListName = ref('')
+const listActionError = ref<string | null>(null)
+const isSavingList = ref(false)
 
 const { t } = useI18n()
 const localePath = useLocalePath()
@@ -77,6 +81,60 @@ const createList = async (): Promise<void> => {
     createListError.value = err instanceof Error ? err.message : t('errors.unknown')
   } finally {
     isCreatingList.value = false
+  }
+}
+
+const startEditList = (shoppingList: ShoppingList): void => {
+  const listId = resolveListId(shoppingList)
+  if (listId === null) return
+
+  editingListId.value = listId
+  editListName.value = shoppingList.name
+  listActionError.value = null
+}
+
+const cancelEditList = (): void => {
+  editingListId.value = null
+  editListName.value = ''
+  listActionError.value = null
+}
+
+const saveList = async (shoppingList: ShoppingList): Promise<void> => {
+  const listId = resolveListId(shoppingList)
+  const name = editListName.value.trim()
+
+  if (listId === null || !name) return
+
+  isSavingList.value = true
+  listActionError.value = null
+
+  try {
+    const updatedList = await shoppingListService().update(listId, { name })
+
+    lists.value = lists.value.map((currentList) =>
+      resolveListId(currentList) === listId ? updatedList : currentList,
+    )
+    cancelEditList()
+  } catch (err) {
+    listActionError.value = err instanceof Error ? err.message : t('errors.unknown')
+  } finally {
+    isSavingList.value = false
+  }
+}
+
+const deleteList = async (shoppingList: ShoppingList): Promise<void> => {
+  const listId = resolveListId(shoppingList)
+
+  if (listId === null) return
+  if (!window.confirm(t('shoppingLists.collection.actions.deleteListConfirm'))) return
+
+  listActionError.value = null
+
+  try {
+    await shoppingListService().remove(listId)
+    lists.value = lists.value.filter((currentList) => resolveListId(currentList) !== listId)
+  } catch (err) {
+    listActionError.value = err instanceof Error ? err.message : t('errors.unknown')
   }
 }
 
@@ -156,22 +214,67 @@ const listCountLabel = computed(() =>
 
     <div v-else class="grid">
       <template v-for="l in lists" :key="getIri(l) || String(l.id)">
-        <NuxtLink
-          v-if="resolveListId(l) !== null"
-          class="cardLink"
-          :to="localePath(`/shopping-lists/collections/${collectionId}/lists/${resolveListId(l)}`)"
-        >
-          <article class="card">
+        <article class="card">
+          <template v-if="editingListId === resolveListId(l)">
+            <label class="field">
+              <span>{{ t('shoppingLists.collection.createList.nameLabel') }}</span>
+              <input v-model="editListName" class="input" type="text" />
+            </label>
+
+            <div v-if="listActionError" class="formError">{{ listActionError }}</div>
+
+            <div class="buttonRow">
+              <button
+                class="secondaryButton"
+                type="button"
+                :disabled="isSavingList"
+                @click="cancelEditList"
+              >
+                {{ t('shoppingLists.actions.cancel') }}
+              </button>
+              <button
+                class="createButton"
+                type="button"
+                :disabled="isSavingList || !editListName.trim()"
+                @click="saveList(l)"
+              >
+                {{ t('shoppingLists.actions.save') }}
+              </button>
+            </div>
+          </template>
+
+          <template v-else>
             <div class="cardHeader">
               <div class="cardTitle">{{ l.name }}</div>
             </div>
-          </article>
-        </NuxtLink>
 
-        <article v-else class="card cardLink isDisabled">
-          <div class="cardHeader">
-            <div class="cardTitle">{{ l.name }}</div>
-          </div>
+            <div class="buttonRow">
+              <NuxtLink
+                v-if="resolveListId(l) !== null"
+                class="linkPrimary"
+                :to="localePath(`/shopping-lists/collections/${collectionId}/lists/${resolveListId(l)}`)"
+              >
+                {{ t('shoppingLists.collection.actions.openList') }}
+              </NuxtLink>
+
+              <button
+                class="secondaryButton"
+                type="button"
+                :disabled="resolveListId(l) === null"
+                @click="startEditList(l)"
+              >
+                {{ t('shoppingLists.actions.edit') }}
+              </button>
+              <button
+                class="dangerButton"
+                type="button"
+                :disabled="resolveListId(l) === null"
+                @click="deleteList(l)"
+              >
+                {{ t('shoppingLists.actions.delete') }}
+              </button>
+            </div>
+          </template>
         </article>
       </template>
 
@@ -314,6 +417,19 @@ const listCountLabel = computed(() =>
   min-width: 0;
 }
 
+.linkPrimary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-light);
+  color: var(--color-text-primary);
+  border-radius: 10px;
+  padding: 9px 11px;
+  font-weight: 900;
+  text-decoration: none;
+}
+
 .card {
   background: var(--color-bg-white);
   border: 1px solid var(--color-border);
@@ -334,6 +450,39 @@ const listCountLabel = computed(() =>
 .cardTitle {
   font-weight: 900;
   color: var(--color-text-primary);
+}
+
+.buttonRow {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.secondaryButton,
+.dangerButton {
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 9px 11px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.secondaryButton {
+  background: var(--color-bg-light);
+  color: var(--color-text-primary);
+}
+
+.dangerButton {
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.secondaryButton:disabled,
+.dangerButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .mutedSmall {

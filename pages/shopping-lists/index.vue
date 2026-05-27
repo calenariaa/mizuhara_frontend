@@ -22,6 +22,12 @@ const createError = ref<string | null>(null)
 const newCollectionName = ref('')
 const newCollectionDescription = ref('')
 const newCollectionOwnerIri = ref('')
+const editingCollectionId = ref<number | null>(null)
+const editCollectionName = ref('')
+const editCollectionDescription = ref('')
+const editCollectionOwnerIri = ref('')
+const isSavingCollection = ref(false)
+const collectionActionError = ref<string | null>(null)
 
 const collectionNumericId = (c: ShoppingListCollection): number | null => {
   if (typeof c.id === 'number') return c.id
@@ -35,8 +41,11 @@ const collectionKey = (c: ShoppingListCollection): string => {
 const userLabel = (user: User): string => user.username || user.email || getIri(user) || 'User'
 
 type CollectionCard = {
+  id: number | null
   key: string
   name: string
+  description?: string | null
+  ownerIri: string
   listCount: number
   detailPath?: string
   hasLists: boolean
@@ -48,10 +57,14 @@ const collectionCards = computed<CollectionCard[]>(() =>
     const numericId = collectionNumericId(collection)
     const detailPath = numericId === null ? undefined : `/shopping-lists/collections/${numericId}`
     const listCount = (collection.shoppingLists ?? []).length
+    const owner = collection.owner
 
     return {
+      id: numericId,
       key,
       name: collection.name,
+      description: collection.description,
+      ownerIri: typeof owner === 'string' ? owner : getIri(owner),
       listCount,
       detailPath,
       hasLists: listCount > 0,
@@ -87,6 +100,67 @@ const refreshCollections = async (): Promise<void> => {
   }
 
   await loadCollections()
+}
+
+const startEditCollection = (collection: CollectionCard): void => {
+  if (collection.id === null) return
+
+  editingCollectionId.value = collection.id
+  editCollectionName.value = collection.name
+  editCollectionDescription.value = collection.description ?? ''
+  editCollectionOwnerIri.value = collection.ownerIri || newCollectionOwnerIri.value
+  collectionActionError.value = null
+}
+
+const cancelEditCollection = (): void => {
+  editingCollectionId.value = null
+  editCollectionName.value = ''
+  editCollectionDescription.value = ''
+  editCollectionOwnerIri.value = ''
+  collectionActionError.value = null
+}
+
+const saveCollection = async (collection: CollectionCard): Promise<void> => {
+  const name = editCollectionName.value.trim()
+  const description = editCollectionDescription.value.trim()
+
+  if (collection.id === null || !name) return
+
+  isSavingCollection.value = true
+  collectionActionError.value = null
+
+  try {
+    const updatedCollection = await shoppingListCollectionService().update(collection.id, {
+      name,
+      description: description || null,
+      owner: editCollectionOwnerIri.value || undefined,
+    })
+
+    collections.value = collections.value.map((currentCollection) =>
+      collectionNumericId(currentCollection) === collection.id ? updatedCollection : currentCollection,
+    )
+    cancelEditCollection()
+  } catch (err) {
+    collectionActionError.value = err instanceof Error ? err.message : t('errors.unknown')
+  } finally {
+    isSavingCollection.value = false
+  }
+}
+
+const deleteCollection = async (collection: CollectionCard): Promise<void> => {
+  if (collection.id === null) return
+  if (!window.confirm(t('shoppingLists.collections.actions.deleteConfirm'))) return
+
+  collectionActionError.value = null
+
+  try {
+    await shoppingListCollectionService().remove(collection.id)
+    collections.value = collections.value.filter(
+      (currentCollection) => collectionNumericId(currentCollection) !== collection.id,
+    )
+  } catch (err) {
+    collectionActionError.value = err instanceof Error ? err.message : t('errors.unknown')
+  }
 }
 
 const createCollection = async (): Promise<void> => {
@@ -209,28 +283,100 @@ onMounted(() => {
 
     <div v-else class="grid">
       <article v-for="collection in collectionCards" :key="collection.key" class="card">
-        <div class="cardHeader">
-          <div class="cardTitle">{{ collection.name }}</div>
-          <div class="badge">{{ collection.listCount }}</div>
-        </div>
+        <template v-if="editingCollectionId === collection.id">
+          <div class="editStack">
+            <label class="field">
+              <span>{{ t('shoppingLists.collections.create.nameLabel') }}</span>
+              <input v-model="editCollectionName" class="input" type="text" />
+            </label>
 
-        <div class="actions">
-          <NuxtLink
-            v-if="collection.detailPath"
-            class="linkPrimary"
-            :to="localePath(collection.detailPath)"
-          >
-            {{ t('shoppingLists.collections.actions.openCollection') }}
-          </NuxtLink>
+            <label class="field">
+              <span>{{ t('shoppingLists.collections.create.ownerLabel') }}</span>
+              <select v-model="editCollectionOwnerIri" class="input">
+                <option value="">
+                  {{ t('shoppingLists.collections.create.ownerPlaceholder') }}
+                </option>
+                <option
+                  v-for="user in users"
+                  :key="getIri(user) || String(user.id)"
+                  :value="getIri(user)"
+                >
+                  {{ userLabel(user) }}
+                </option>
+              </select>
+            </label>
 
-          <span v-else class="mutedSmall">
-            {{ t('errors.unknown') }}
-          </span>
+            <label class="field">
+              <span>{{ t('shoppingLists.collections.create.descriptionLabel') }}</span>
+              <input v-model="editCollectionDescription" class="input" type="text" />
+            </label>
+          </div>
 
-          <span v-if="!collection.hasLists" class="mutedSmall">
-            {{ t('shoppingLists.collections.empty.noListsInCollection') }}
-          </span>
-        </div>
+          <div v-if="collectionActionError" class="formError">{{ collectionActionError }}</div>
+
+          <div class="buttonRow">
+            <button
+              class="secondaryButton"
+              type="button"
+              :disabled="isSavingCollection"
+              @click="cancelEditCollection"
+            >
+              {{ t('shoppingLists.actions.cancel') }}
+            </button>
+            <button
+              class="createButton"
+              type="button"
+              :disabled="isSavingCollection || !editCollectionName.trim()"
+              @click="saveCollection(collection)"
+            >
+              {{ t('shoppingLists.actions.save') }}
+            </button>
+          </div>
+        </template>
+
+        <template v-else>
+          <div class="cardHeader">
+            <div class="cardTitle">{{ collection.name }}</div>
+            <div class="badge">{{ collection.listCount }}</div>
+          </div>
+
+          <div class="actions">
+            <NuxtLink
+              v-if="collection.detailPath"
+              class="linkPrimary"
+              :to="localePath(collection.detailPath)"
+            >
+              {{ t('shoppingLists.collections.actions.openCollection') }}
+            </NuxtLink>
+
+            <span v-else class="mutedSmall">
+              {{ t('errors.unknown') }}
+            </span>
+
+            <span v-if="!collection.hasLists" class="mutedSmall">
+              {{ t('shoppingLists.collections.empty.noListsInCollection') }}
+            </span>
+          </div>
+
+          <div class="buttonRow">
+            <button
+              class="secondaryButton"
+              type="button"
+              :disabled="collection.id === null"
+              @click="startEditCollection(collection)"
+            >
+              {{ t('shoppingLists.actions.edit') }}
+            </button>
+            <button
+              class="dangerButton"
+              type="button"
+              :disabled="collection.id === null"
+              @click="deleteCollection(collection)"
+            >
+              {{ t('shoppingLists.actions.delete') }}
+            </button>
+          </div>
+        </template>
       </article>
 
       <div v-if="collections.length === 0" class="empty">
@@ -382,6 +528,44 @@ onMounted(() => {
 }
 
 .createButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.editStack {
+  display: grid;
+  gap: 10px;
+}
+
+.buttonRow {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.secondaryButton,
+.dangerButton {
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 9px 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.secondaryButton {
+  background: var(--color-bg-light);
+  color: var(--color-text-primary);
+}
+
+.dangerButton {
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.secondaryButton:disabled,
+.dangerButton:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }

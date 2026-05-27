@@ -1,11 +1,14 @@
-import type { CreateShoppingListCollectionRequest } from '@/modules/shoppingList/types/request'
+import type {
+  CreateShoppingListCollectionRequest,
+  UpdateShoppingListCollectionRequest,
+} from '@/modules/shoppingList/types/request'
 import type { ShoppingListCollection } from '@/types/api/shoppingList/shoppingListCollection'
 
 import { useApiClient } from '@/composables/api/useApiClient'
 import { SHOPPING_LIST_COLLECTIONS_ENDPOINT } from '@/modules/shoppingList/services/endpoints'
 
 export function shoppingListCollectionService() {
-  const { getCollection, getItem, post } = useApiClient()
+  const { del, getCollection, getItem, patch, post } = useApiClient()
 
   return {
     async getAll(): Promise<ShoppingListCollection[]> {
@@ -26,6 +29,20 @@ export function shoppingListCollectionService() {
         SHOPPING_LIST_COLLECTIONS_ENDPOINT,
         collectionRequest,
       )
+    },
+
+    async update(
+      id: number,
+      collectionRequest: UpdateShoppingListCollectionRequest,
+    ): Promise<ShoppingListCollection> {
+      return patch<ShoppingListCollection, UpdateShoppingListCollectionRequest>(
+        `${SHOPPING_LIST_COLLECTIONS_ENDPOINT}/${id}`,
+        collectionRequest,
+      )
+    },
+
+    async remove(id: number): Promise<void> {
+      await del(`${SHOPPING_LIST_COLLECTIONS_ENDPOINT}/${id}`)
     },
   }
 }

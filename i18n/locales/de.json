@@ -54,6 +54,12 @@
     "unknown": "Unbekannter Fehler"
   },
   "shoppingLists": {
+    "actions": {
+      "cancel": "Abbrechen",
+      "delete": "Loeschen",
+      "edit": "Bearbeiten",
+      "save": "Speichern"
+    },
     "breadcrumbs": {
       "overview": "Einkaufslisten"
     },
@@ -76,6 +82,7 @@
         "creatingButton": "Wird erstellt..."
       },
       "actions": {
+        "deleteConfirm": "Diese Collection wirklich loeschen?",
         "refreshAria": "Neu laden",
         "openCollection": "Collection öffnen"
       },
@@ -97,6 +104,10 @@
         "namePlaceholder": "z.B. Wocheneinkauf",
         "submitButton": "Erstellen",
         "creatingButton": "Wird erstellt..."
+      },
+      "actions": {
+        "deleteListConfirm": "Diese Einkaufsliste wirklich loeschen?",
+        "openList": "Liste oeffnen"
       },
       "empty": {
         "title": "Keine Listen in dieser Collection",

@@ -54,6 +54,12 @@
     }
   },
   "shoppingLists": {
+    "actions": {
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "edit": "Edit",
+      "save": "Save"
+    },
     "breadcrumbs": {
       "overview": "Shopping lists"
     },
@@ -76,6 +82,7 @@
         "creatingButton": "Creating..."
       },
       "actions": {
+        "deleteConfirm": "Delete this collection?",
         "refreshAria": "Refresh",
         "openCollection": "Open collection"
       },
@@ -97,6 +104,10 @@
         "namePlaceholder": "e.g. Weekly groceries",
         "submitButton": "Create",
         "creatingButton": "Creating..."
+      },
+      "actions": {
+        "deleteListConfirm": "Delete this shopping list?",
+        "openList": "Open list"
       },
       "empty": {
         "title": "No lists in this collection",

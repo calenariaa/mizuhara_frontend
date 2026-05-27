@@ -16,9 +16,19 @@ type CreateShoppingListCollectionBody = {
   owner: string
 }
 
+type UpdateShoppingListCollectionBody = {
+  name?: string
+  description?: string | null
+  owner?: string
+}
+
 type CreateShoppingListBody = {
   name: string
   shoppingListCollection?: string
+}
+
+type UpdateShoppingListBody = {
+  name?: string
 }
 
 type CreateShoppingListEntryBody = {
@@ -84,6 +94,41 @@ export const shoppingListHandlers = [
     return HttpResponse.json(createdCollection, { status: 201 })
   }),
 
+  http.patch(
+    matchApiPath(`${SHOPPING_LIST_COLLECTIONS_ENDPOINT}/:id`),
+    async ({ params, request }) => {
+      const collectionId = Number(params.id)
+      const body = (await request.json()) as UpdateShoppingListCollectionBody
+      const collection = shoppingListCollections.find(
+        (shoppingListCollection) => shoppingListCollection.id === collectionId,
+      )
+
+      if (!collection) {
+        return jsonNotFound('ShoppingListCollection')
+      }
+
+      if (body.name) collection.name = body.name
+      if (body.description !== undefined) collection.description = body.description
+      if (body.owner) collection.owner = body.owner
+
+      return HttpResponse.json(collection)
+    },
+  ),
+
+  http.delete(matchApiPath(`${SHOPPING_LIST_COLLECTIONS_ENDPOINT}/:id`), ({ params }) => {
+    const collectionId = Number(params.id)
+    const collectionIndex = shoppingListCollections.findIndex(
+      (shoppingListCollection) => shoppingListCollection.id === collectionId,
+    )
+
+    if (collectionIndex === -1) {
+      return jsonNotFound('ShoppingListCollection')
+    }
+
+    shoppingListCollections.splice(collectionIndex, 1)
+    return new HttpResponse(null, { status: 204 })
+  }),
+
   http.get(matchApiPath(SHOPPING_LISTS_ENDPOINT), () => jsonCollection(getMockShoppingLists())),
 
   http.get(matchApiPath(`${SHOPPING_LISTS_ENDPOINT}/:id`), ({ params }) => {
@@ -117,6 +162,38 @@ export const shoppingListHandlers = [
     }
 
     return HttpResponse.json(createdShoppingList, { status: 201 })
+  }),
+
+  http.patch(matchApiPath(`${SHOPPING_LISTS_ENDPOINT}/:id`), async ({ params, request }) => {
+    const shoppingListId = Number(params.id)
+    const body = (await request.json()) as UpdateShoppingListBody
+    const shoppingList = getMockShoppingLists().find((list) => list.id === shoppingListId)
+
+    if (!shoppingList) {
+      return jsonNotFound('ShoppingList')
+    }
+
+    if (body.name) shoppingList.name = body.name
+
+    return HttpResponse.json(shoppingList)
+  }),
+
+  http.delete(matchApiPath(`${SHOPPING_LISTS_ENDPOINT}/:id`), ({ params }) => {
+    const shoppingListId = Number(params.id)
+
+    for (const collection of shoppingListCollections) {
+      const shoppingLists = collection.shoppingLists ?? []
+      const nextShoppingLists = shoppingLists.filter(
+        (shoppingList) => typeof shoppingList !== 'object' || shoppingList.id !== shoppingListId,
+      )
+
+      if (nextShoppingLists.length !== shoppingLists.length) {
+        collection.shoppingLists = nextShoppingLists
+        return new HttpResponse(null, { status: 204 })
+      }
+    }
+
+    return jsonNotFound('ShoppingList')
   }),
 
   http.post(matchApiPath(SHOPPING_LIST_ENTRIES_ENDPOINT), async ({ request }) => {
