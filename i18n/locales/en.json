@@ -29,8 +29,32 @@
     "meta": {
       "title": "Home"
     },
-    "title": "Nuxt is running",
-    "subtitle": "Everything looks good."
+    "intro": {
+      "eyebrow": "Welcome to Mizuhara",
+      "title": "A home dashboard for everyday life",
+      "text": "Mizuhara collects small tools for household tasks, planning, and shared organization in one place.",
+      "makers": "It is built by Kira and Misha, two developers who wanted to make their own lives a little easier.",
+      "opensource": "The project is open source. Ideas, improvements, and feedback are welcome. Have fun using and shaping it.",
+      "coffee": "Buy us a coffee",
+      "hide": "Hide note"
+    },
+    "dashboard": {
+      "title": "Current status",
+      "subtitle": "A quick overview of open lists, tasks, and users. Click a card to open the related module.",
+      "errorTitle": "Dashboard could not be loaded",
+      "shopping": {
+        "title": "Open shopping lists",
+        "meta": "of {total} lists total"
+      },
+      "tasks": {
+        "title": "Open tasks",
+        "meta": "of {total} tasks total"
+      },
+      "users": {
+        "title": "Users",
+        "meta": "for shared usage"
+      }
+    }
   },
   "locales": {
     "de": "Deutsch",

@@ -26,8 +26,32 @@
     "meta": {
       "title": "Start"
     },
-    "title": "Nuxt läuft",
-    "subtitle": "Alles sieht gut aus."
+    "intro": {
+      "eyebrow": "Willkommen bei Mizuhara",
+      "title": "Ein Zuhause-Dashboard fuer den Alltag",
+      "text": "Mizuhara sammelt kleine Werkzeuge fuer Haushalt, Planung und gemeinsame Organisation an einem Ort.",
+      "makers": "Gebaut wurde es von Kira und Misha, zwei Entwickler:innen, die ihr eigenes Leben ein bisschen einfacher machen wollten.",
+      "opensource": "Das Projekt ist Open Source. Ideen, Verbesserungen und Feedback sind willkommen. Viel Spass beim Nutzen und Mitgestalten.",
+      "coffee": "Kaffee spendieren",
+      "hide": "Hinweis ausblenden"
+    },
+    "dashboard": {
+      "title": "Aktueller Stand",
+      "subtitle": "Kurzer Ueberblick ueber offene Listen, Tasks und User. Klicke eine Karte an, um ins passende Modul zu wechseln.",
+      "errorTitle": "Dashboard konnte nicht geladen werden",
+      "shopping": {
+        "title": "Offene Einkaufslisten",
+        "meta": "von {total} Listen gesamt"
+      },
+      "tasks": {
+        "title": "Offene Tasks",
+        "meta": "von {total} Tasks gesamt"
+      },
+      "users": {
+        "title": "User",
+        "meta": "fuer gemeinsame Nutzung"
+      }
+    }
   },
   "locales": {
     "de": "Deutsch",

@@ -29,7 +29,7 @@ const closeMenu = () => menu.close()
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: var(--color-bg-white);
+  background: var(--color-bg-light);
 }
 
 .appMain {

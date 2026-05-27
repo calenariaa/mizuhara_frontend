@@ -74,7 +74,7 @@ const selectedLocale = computed<LocaleCode>({
     rgb(from var(--color-primary) r g b / 0.3) 70%,
     rgb(from var(--color-primary) r g b / 0.2) 80%,
     rgb(from var(--color-primary) r g b / 0.1) 90%,
-    rgb(from var(--color-primary) r g b / 0) 100%
+    var(--color-bg-light) 100%
   );
 }
 
