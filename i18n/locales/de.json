@@ -28,16 +28,16 @@
     },
     "intro": {
       "eyebrow": "Willkommen bei Mizuhara",
-      "title": "Ein Zuhause-Dashboard fuer den Alltag",
-      "text": "Mizuhara sammelt kleine Werkzeuge fuer Haushalt, Planung und gemeinsame Organisation an einem Ort.",
+      "title": "Ein Zuhause-Dashboard für den Alltag",
+      "text": "Mizuhara sammelt kleine Werkzeuge für Haushalt, Planung und gemeinsame Organisation an einem Ort.",
       "makers": "Gebaut wurde es von Kira und Misha, zwei Entwickler:innen, die ihr eigenes Leben ein bisschen einfacher machen wollten.",
-      "opensource": "Das Projekt ist Open Source. Ideen, Verbesserungen und Feedback sind willkommen. Viel Spass beim Nutzen und Mitgestalten.",
+      "opensource": "Das Projekt ist Open Source. Ideen, Verbesserungen und Feedback sind willkommen. Viel Spaß beim Nutzen und Mitgestalten.",
       "coffee": "Kaffee spendieren",
       "hide": "Hinweis ausblenden"
     },
     "dashboard": {
       "title": "Aktueller Stand",
-      "subtitle": "Kurzer Ueberblick ueber offene Listen, Tasks und User. Klicke eine Karte an, um ins passende Modul zu wechseln.",
+      "subtitle": "Kurzer Überblick über offene Listen, Tasks und User. Klicke eine Karte an, um ins passende Modul zu wechseln.",
       "errorTitle": "Dashboard konnte nicht geladen werden",
       "shopping": {
         "title": "Offene Einkaufslisten",
@@ -49,7 +49,7 @@
       },
       "users": {
         "title": "User",
-        "meta": "fuer gemeinsame Nutzung"
+        "meta": "für gemeinsame Nutzung"
       }
     }
   },
@@ -71,7 +71,7 @@
     },
     "items": {
       "home": "Start",
-      "tasks": "Tasks",
+      "tasks": "Aufgaben",
       "users": "User",
       "shoppingLists": "Einkaufslisten"
     }
@@ -81,7 +81,7 @@
   },
   "users": {
     "title": "User",
-    "subtitle": "Verwalte die User, die in Collections und Einkaufslisten verwendet werden.",
+    "subtitle": "Verwalte die User, die in Sammlungen und Einkaufslisten verwendet werden.",
     "fields": {
       "username": "Username",
       "email": "E-Mail",
@@ -96,8 +96,8 @@
     },
     "actions": {
       "cancel": "Abbrechen",
-      "delete": "Loeschen",
-      "deleteConfirm": "Diesen User wirklich loeschen?",
+      "delete": "Löschen",
+      "deleteConfirm": "Diesen User wirklich löschen?",
       "edit": "Bearbeiten",
       "save": "Speichern"
     },
@@ -113,7 +113,7 @@
     }
   },
   "tasks": {
-    "title": "Tasks",
+    "title": "Aufgaben",
     "subtitle": "Verwalte Aufgaben und ihre einzelnen Schritte.",
     "unassigned": "Nicht zugewiesen",
     "fields": {
@@ -122,46 +122,46 @@
     },
     "status": {
       "open": "offen",
-      "inProgress": "in progress",
+      "inProgress": "in Arbeit",
       "completed": "erledigt",
       "unknown": "unbekannt"
     },
     "card": {
-      "title": "Task #{id}"
+      "title": "Aufgabe #{id}"
     },
     "create": {
-      "title": "Task erstellen",
+      "title": "Aufgabe erstellen",
       "submitButton": "Erstellen",
       "creatingButton": "Wird erstellt..."
     },
     "entries": {
-      "empty": "Noch keine Eintraege",
-      "openCreate": "Eintrag hinzufuegen",
+      "empty": "Noch keine Einträge",
+      "openCreate": "Eintrag hinzufügen",
       "descriptionPlaceholder": "Beschreibung",
-      "addButton": "Hinzufuegen"
+      "addButton": "Hinzufügen"
     },
     "actions": {
       "cancel": "Abbrechen",
-      "delete": "Loeschen",
-      "deleteTaskConfirm": "Diesen Task wirklich loeschen?",
+      "delete": "Löschen",
+      "deleteTaskConfirm": "Diese Aufgabe wirklich löschen?",
       "edit": "Bearbeiten",
       "complete": "Abhaken",
-      "reopen": "Wieder oeffnen",
+      "reopen": "Wieder öffnen",
       "save": "Speichern"
     },
     "state": {
       "errorTitle": "Fehler",
       "retry": "Erneut versuchen",
-      "loadingTitle": "Tasks werden geladen...",
-      "loadingSubtitle": "Tasks werden abgeholt.",
-      "emptyTitle": "Keine Tasks",
-      "emptySubtitle": "Erstelle einen Task, um Eintraege zu sammeln."
+      "loadingTitle": "Aufgaben werden geladen...",
+      "loadingSubtitle": "Aufgaben werden abgeholt.",
+      "emptyTitle": "Keine Aufgaben",
+      "emptySubtitle": "Erstelle eine Aufgabe, um Einträge zu sammeln."
     }
   },
   "shoppingLists": {
     "actions": {
       "cancel": "Abbrechen",
-      "delete": "Loeschen",
+      "delete": "Löschen",
       "edit": "Bearbeiten",
       "save": "Speichern"
     },
@@ -173,35 +173,35 @@
       "retry": "Erneut versuchen"
     },
     "collections": {
-      "title": "Einkaufs-Collections",
-      "subtitle": "Collections",
+      "title": "Einkaufssammlungen",
+      "subtitle": "Sammlungen",
       "create": {
-        "title": "Collection erstellen",
+        "title": "Sammlung erstellen",
         "nameLabel": "Name",
         "namePlaceholder": "z.B. Haushalt",
         "descriptionLabel": "Beschreibung",
         "descriptionPlaceholder": "Optional",
         "ownerLabel": "Owner",
-        "ownerPlaceholder": "User waehlen",
+        "ownerPlaceholder": "User wählen",
         "submitButton": "Erstellen",
         "creatingButton": "Wird erstellt..."
       },
       "actions": {
-        "deleteConfirm": "Diese Collection wirklich loeschen?",
+        "deleteConfirm": "Diese Sammlung wirklich löschen?",
         "refreshAria": "Neu laden",
-        "openCollection": "Collection öffnen"
+        "openCollection": "Sammlung öffnen"
       },
       "state": {
-        "loadingTitle": "Collections werden geladen…",
-        "loadingSubtitle": "Collections werden abgeholt."
+        "loadingTitle": "Sammlungen werden geladen…",
+        "loadingSubtitle": "Sammlungen werden abgeholt."
       },
       "empty": {
-        "noListsInCollection": "Keine Listen in dieser Collection",
-        "noCollectionsTitle": "Keine Collections"
+        "noListsInCollection": "Keine Listen in dieser Sammlung",
+        "noCollectionsTitle": "Keine Sammlungen"
       }
     },
     "collection": {
-      "titleFallback": "Collection",
+      "titleFallback": "Sammlung",
       "listCount": "{count} Liste | {count} Listen",
       "createList": {
         "title": "Liste erstellen",
@@ -211,18 +211,18 @@
         "creatingButton": "Wird erstellt..."
       },
       "actions": {
-        "deleteListConfirm": "Diese Einkaufsliste wirklich loeschen?",
-        "openList": "Liste oeffnen"
+        "deleteListConfirm": "Diese Einkaufsliste wirklich löschen?",
+        "openList": "Liste öffnen"
       },
       "empty": {
-        "title": "Keine Listen in dieser Collection",
+        "title": "Keine Listen in dieser Sammlung",
         "subtitle": "Lege im Backend eine ShoppingList an und verknüpfe sie."
       }
     },
     "list": {
       "titleFallback": "Einkaufsliste",
       "breadcrumbs": {
-        "collectionFallback": "Collection {id}",
+        "collectionFallback": "Sammlung {id}",
         "listFallback": "Einkaufsliste"
       },
       "header": {
@@ -241,11 +241,11 @@
         "product": "Produkt"
       },
       "completion": {
-        "title": "Alle Eintraege sind erledigt",
-        "text": "Moechtest du diese Einkaufsliste direkt loeschen?",
-        "laterButton": "Spaeter",
-        "deleteButton": "Liste loeschen",
-        "deletingButton": "Wird geloescht..."
+        "title": "Alle Einträge sind erledigt",
+        "text": "Möchtest du diese Einkaufsliste direkt löschen?",
+        "laterButton": "Später",
+        "deleteButton": "Liste löschen",
+        "deletingButton": "Wird gelöscht..."
       },
       "content": {
         "title": "Inhalt",
