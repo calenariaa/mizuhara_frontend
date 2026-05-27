@@ -9,7 +9,12 @@ import {
   SHOPPING_LISTS_ENDPOINT,
 } from '@/modules/shoppingList/services/endpoints'
 import { taskHandlers } from '@/modules/tasks/mocks/handlers'
-import { GENERIC_TASKS_ENDPOINT, TASK_ENTRIES_ENDPOINT } from '@/modules/tasks/services/endpoints'
+import {
+  TASK_DEFINITIONS_ENDPOINT,
+  TASK_ENTRIES_ENDPOINT,
+  TASK_ENTRY_TEMPLATES_ENDPOINT,
+  TASKS_ENDPOINT,
+} from '@/modules/tasks/services/endpoints'
 import { userHandlers } from '@/modules/user/mocks/handlers'
 import { USERS_ENDPOINT } from '@/modules/user/services/endpoints'
 import { matchApiPath } from '@/shared/mocks/utils'
@@ -20,8 +25,10 @@ const apiEntrypointHandler = http.get(matchApiPath('/api'), () => {
     shoppingListCollection: SHOPPING_LIST_COLLECTIONS_ENDPOINT,
     shoppingList: SHOPPING_LISTS_ENDPOINT,
     shoppingListEntry: SHOPPING_LIST_ENTRIES_ENDPOINT,
-    genericTask: GENERIC_TASKS_ENDPOINT,
+    task: TASKS_ENDPOINT,
+    taskDefinition: TASK_DEFINITIONS_ENDPOINT,
     taskEntry: TASK_ENTRIES_ENDPOINT,
+    taskEntryTemplate: TASK_ENTRY_TEMPLATES_ENDPOINT,
     user: USERS_ENDPOINT,
   })
 })

@@ -9,7 +9,7 @@ export interface User extends BaseEntity {
   active?: boolean
   shoppingLists?: Array<ShoppingList | string>
   shoppingListEntries?: Array<ShoppingListEntry | string>
-  genericTasks?: string[]
+  tasks?: string[]
   createdAt?: string
   updatedAt?: string
 }

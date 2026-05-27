@@ -3,7 +3,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   runtimeConfig: {
     public: {
-      apiBase: process.env.NUXT_PUBLIC_API_BASE ?? 'http://192.168.178.74:8000',
+      apiBase: process.env.NUXT_PUBLIC_API_BASE ?? 'http://mizuhara.local:8080',
       apiMode: process.env.NUXT_PUBLIC_API_MODE ?? 'auto',
       apiFallbackTimeoutMs: Number(process.env.NUXT_PUBLIC_API_FALLBACK_TIMEOUT_MS ?? 1800),
     },

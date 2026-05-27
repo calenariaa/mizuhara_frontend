@@ -10,7 +10,7 @@ export type UpdateUserRequest = {
   isActive?: boolean
   shoppingLists?: string[]
   shoppingListEntries?: string[]
-  genericTasks?: string[]
+  tasks?: string[]
   createdAt?: string
   updatedAt?: string
 }

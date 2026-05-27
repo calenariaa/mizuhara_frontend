@@ -34,11 +34,10 @@
       "eyebrow": "Welcome to Mizuhara",
       "title": "A home dashboard for everyday life",
       "text": "Mizuhara collects small tools for household tasks, planning, and shared organization in one place.",
-      "makers": "It is built by Kira and Misha, two developers who wanted to make their own lives a little easier.",
-      "opensource": "The project is open source. Ideas, improvements, and feedback are welcome. Have fun using and shaping it.",
-      "coffee": "Buy us a coffee",
-      "hide": "Hide note"
-    },
+        "makers": "It is built by Kira and Misha, two developers who wanted to make their own lives a little easier.",
+        "opensource": "The project is open source. Ideas, improvements, and feedback are welcome. Have fun using and shaping it.",
+        "hide": "Hide note"
+      },
     "dashboard": {
       "title": "Current status",
       "subtitle": "A quick overview of open lists, tasks, and users. Click a card to open the related module.",
@@ -55,6 +54,17 @@
         "title": "Users",
         "meta": "for shared usage"
       }
+    },
+    "expiring": {
+      "eyebrow": "Task focus",
+      "title": "Tasks that need attention",
+      "subtitle": "Tasks due soon or already overdue appear here.",
+      "count": "{count} tasks",
+      "dueToday": "due today",
+      "dueTomorrow": "due tomorrow",
+      "dueIn": "in {count} days",
+      "overdue": "overdue",
+      "untitledTask": "Untitled task"
     }
   },
   "locales": {
@@ -115,12 +125,30 @@
   },
   "tasks": {
     "title": "Tasks",
-    "subtitle": "Manage tasks and their individual entries.",
+    "subtitle": "Manage tasks, their entries, definitions, and recurring templates.",
+    "tabs": {
+      "ariaLabel": "Task areas",
+      "tasks": "Tasks",
+      "definitions": "Definitions"
+    },
     "unassigned": "Unassigned",
     "fields": {
-      "name": "Name",
+      "title": "Title",
+      "description": "Description",
       "assignee": "Assignee",
-      "status": "Status"
+      "status": "Status",
+      "urgency": "Urgency",
+      "dueDate": "Due date",
+      "time": "Time",
+      "notSet": "Not set"
+    },
+    "urgency": {
+      "emergency": "emergency",
+      "critical": "critical",
+      "important": "important",
+      "normal": "normal",
+      "whenever": "whenever",
+      "unknown": "unknown"
     },
     "status": {
       "open": "open",
@@ -129,11 +157,16 @@
       "unknown": "unknown"
     },
     "card": {
-      "titleFallback": "Task #{id}"
+      "titleFallback": "Task #{id}",
+      "descriptionFallback": "No description set"
+    },
+    "dueDate": {
+      "overdue": "overdue"
     },
     "create": {
       "title": "Create task",
-      "namePlaceholder": "e.g. Clean the apartment",
+      "titlePlaceholder": "e.g. Clean the apartment",
+      "descriptionPlaceholder": "Short description",
       "submitButton": "Create",
       "creatingButton": "Creating..."
     },
@@ -151,6 +184,67 @@
       "complete": "Complete",
       "reopen": "Reopen",
       "save": "Save"
+    },
+    "definitions": {
+      "titleFallback": "Definition #{id}",
+      "descriptionFallback": "No description set",
+      "undefined": "No definition",
+      "active": "active",
+      "inactive": "inactive",
+      "deleteConfirm": "Delete this definition?",
+      "empty": {
+        "title": "No definitions",
+        "subtitle": "Create a task definition to manage recurring tasks and entry templates."
+      },
+      "create": {
+        "title": "Create definition",
+        "titlePlaceholder": "e.g. Weekly cleaning",
+        "descriptionPlaceholder": "Short description",
+        "submitButton": "Create",
+        "creatingButton": "Creating..."
+      },
+      "fields": {
+        "title": "Title",
+        "description": "Description",
+        "urgency": "Urgency",
+        "recurrenceType": "Recurrence",
+        "recurrenceInterval": "Interval",
+        "dayOfWeek": "Day of week",
+        "weekOrdinal": "Week"
+      },
+      "recurrence": {
+        "none": "no recurrence",
+        "interval": "every {count}"
+      },
+      "recurrenceTypes": {
+        "once": "one time",
+        "daily": "daily",
+        "weekly": "weekly",
+        "monthly": "monthly",
+        "yearly": "yearly"
+      },
+      "days": {
+        "monday": "Monday",
+        "tuesday": "Tuesday",
+        "wednesday": "Wednesday",
+        "thursday": "Thursday",
+        "friday": "Friday",
+        "saturday": "Saturday",
+        "sunday": "Sunday"
+      },
+      "weekOrdinals": {
+        "first": "first",
+        "second": "second",
+        "third": "third",
+        "fourth": "fourth",
+        "last": "last"
+      },
+      "templates": {
+        "empty": "No entry templates yet",
+        "openCreate": "Add entry template",
+        "descriptionPlaceholder": "Description",
+        "addButton": "Add"
+      }
     },
     "state": {
       "errorTitle": "Error",

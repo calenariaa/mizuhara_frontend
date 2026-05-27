@@ -33,7 +33,6 @@
       "text": "Mizuhara sammelt kleine Werkzeuge für Haushalt, Planung und gemeinsame Organisation an einem Ort.",
       "makers": "Gebaut wurde es von Kira und Misha, zwei Entwickler:innen, die ihr eigenes Leben ein bisschen einfacher machen wollten.",
       "opensource": "Das Projekt ist Open Source. Ideen, Verbesserungen und Feedback sind willkommen. Viel Spaß beim Nutzen und Mitgestalten.",
-      "coffee": "Kaffee spendieren",
       "hide": "Hinweis ausblenden"
     },
     "dashboard": {
@@ -52,6 +51,17 @@
         "title": "User",
         "meta": "für gemeinsame Nutzung"
       }
+    },
+    "expiring": {
+      "eyebrow": "Task-Fokus",
+      "title": "Tasks mit Handlungsbedarf",
+      "subtitle": "Tasks, die bald fällig oder bereits überfällig sind, erscheinen hier.",
+      "count": "{count} Tasks",
+      "dueToday": "heute fällig",
+      "dueTomorrow": "morgen fällig",
+      "dueIn": "in {count} Tagen",
+      "overdue": "überfällig",
+      "untitledTask": "Unbenannter Task"
     }
   },
   "locales": {
@@ -115,12 +125,30 @@
   },
   "tasks": {
     "title": "Aufgaben",
-    "subtitle": "Verwalte Aufgaben und ihre einzelnen Schritte.",
+    "subtitle": "Verwalte Aufgaben, ihre Schritte, Vorlagen und Wiederholungen.",
+    "tabs": {
+      "ariaLabel": "Task-Bereiche",
+      "tasks": "Aufgaben",
+      "definitions": "Vorlagen"
+    },
     "unassigned": "Nicht zugewiesen",
     "fields": {
-      "name": "Name",
+      "title": "Titel",
+      "description": "Beschreibung",
       "assignee": "Zugewiesen an",
-      "status": "Status"
+      "status": "Status",
+      "urgency": "Dringlichkeit",
+      "dueDate": "Fällig am",
+      "time": "Uhrzeit",
+      "notSet": "Nicht gesetzt"
+    },
+    "urgency": {
+      "emergency": "Notfall",
+      "critical": "kritisch",
+      "important": "wichtig",
+      "normal": "normal",
+      "whenever": "irgendwann",
+      "unknown": "unbekannt"
     },
     "status": {
       "open": "offen",
@@ -129,11 +157,16 @@
       "unknown": "unbekannt"
     },
     "card": {
-      "titleFallback": "Aufgabe #{id}"
+      "titleFallback": "Aufgabe #{id}",
+      "descriptionFallback": "Keine Beschreibung hinterlegt"
+    },
+    "dueDate": {
+      "overdue": "überfällig"
     },
     "create": {
       "title": "Aufgabe erstellen",
-      "namePlaceholder": "z.B. Wohnung aufräumen",
+      "titlePlaceholder": "z.B. Wohnung aufräumen",
+      "descriptionPlaceholder": "Kurze Beschreibung",
       "submitButton": "Erstellen",
       "creatingButton": "Wird erstellt..."
     },
@@ -151,6 +184,67 @@
       "complete": "Abhaken",
       "reopen": "Wieder öffnen",
       "save": "Speichern"
+    },
+    "definitions": {
+      "titleFallback": "Vorlage #{id}",
+      "descriptionFallback": "Keine Beschreibung hinterlegt",
+      "undefined": "Keine Vorlage",
+      "active": "aktiv",
+      "inactive": "inaktiv",
+      "deleteConfirm": "Diese Vorlage wirklich löschen?",
+      "empty": {
+        "title": "Keine Vorlagen",
+        "subtitle": "Lege eine Aufgabevorlage an, um wiederkehrende Aufgaben und Eintragsvorlagen zu verwalten."
+      },
+      "create": {
+        "title": "Vorlage erstellen",
+        "titlePlaceholder": "z.B. Wöchentliche Reinigung",
+        "descriptionPlaceholder": "Kurze Beschreibung",
+        "submitButton": "Erstellen",
+        "creatingButton": "Wird erstellt..."
+      },
+      "fields": {
+        "title": "Titel",
+        "description": "Beschreibung",
+        "urgency": "Dringlichkeit",
+        "recurrenceType": "Wiederholung",
+        "recurrenceInterval": "Intervall",
+        "dayOfWeek": "Wochentag",
+        "weekOrdinal": "Woche"
+      },
+      "recurrence": {
+        "none": "keine Wiederholung",
+        "interval": "alle {count}x"
+      },
+      "recurrenceTypes": {
+        "once": "einmalig",
+        "daily": "täglich",
+        "weekly": "wöchentlich",
+        "monthly": "monatlich",
+        "yearly": "jährlich"
+      },
+      "days": {
+        "monday": "Montag",
+        "tuesday": "Dienstag",
+        "wednesday": "Mittwoch",
+        "thursday": "Donnerstag",
+        "friday": "Freitag",
+        "saturday": "Samstag",
+        "sunday": "Sonntag"
+      },
+      "weekOrdinals": {
+        "first": "erste",
+        "second": "zweite",
+        "third": "dritte",
+        "fourth": "vierte",
+        "last": "letzte"
+      },
+      "templates": {
+        "empty": "Noch keine Eintragsvorlagen",
+        "openCreate": "Eintragsvorlage hinzufügen",
+        "descriptionPlaceholder": "Beschreibung",
+        "addButton": "Hinzufügen"
+      }
     },
     "state": {
       "errorTitle": "Fehler",
