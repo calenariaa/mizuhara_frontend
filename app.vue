@@ -1,22 +1,19 @@
 <script setup lang="ts">
 import { useHead, useI18n } from '#imports'
+import { useBackendReconnect, useMockApiMode } from '@/composables/api/useMockApi'
 
 const { t } = useI18n()
-const mockApiMode = useState<'off' | 'manual' | 'fallback'>('mockApiMode', () => 'off')
-const nuxtApp = useNuxtApp() as unknown as {
-  $retryBackendConnection?: () => Promise<boolean>
-}
+const mockApiMode = useMockApiMode()
+const { retryBackendConnection } = useBackendReconnect()
 const isReconnecting = ref(false)
 const reconnectFailed = ref(false)
 
 const reconnectBackend = async (): Promise<void> => {
-  if (!nuxtApp.$retryBackendConnection) return
-
   isReconnecting.value = true
   reconnectFailed.value = false
 
   try {
-    const connected = await nuxtApp.$retryBackendConnection()
+    const connected = await retryBackendConnection()
 
     if (connected) {
       window.location.reload()

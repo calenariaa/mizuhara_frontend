@@ -1,227 +1,197 @@
 import { http, HttpResponse } from 'msw'
 
-import type { ProductInformation } from '@/types/api/products/productInformation'
-import type { User } from '@/types/api/users/user'
-
+import { mockProductInformation } from '@/modules/catalog/mocks/data/productInformation'
 import { shoppingListCollections } from '@/modules/shoppingList/mocks/data/shoppingListCollections'
 import {
   SHOPPING_LIST_COLLECTIONS_ENDPOINT,
   SHOPPING_LIST_ENTRIES_ENDPOINT,
   SHOPPING_LISTS_ENDPOINT,
 } from '@/modules/shoppingList/services/endpoints'
+import { mockUsers } from '@/modules/user/mocks/data/users'
+import { jsonCollection, jsonNotFound, matchApiPath, nextNumericId } from '@/shared/mocks/utils'
 
-const apiPath = (path: string) => `*${path}`
+type CreateShoppingListCollectionBody = {
+  name: string
+  description?: string | null
+  owner: string
+}
 
-const users: User[] = [
-  {
-    '@id': '/api/users/1',
-    id: 1,
-    email: 'kira@example.test',
-    username: 'kira',
-    active: true,
-  },
-]
+type CreateShoppingListBody = {
+  name: string
+  shoppingListCollection?: string
+}
 
-const products: ProductInformation[] = [
-  {
-    '@id': '/api/product_informations/1',
-    id: 1,
-    code: 'MILK',
-    productName: 'Milch',
-  },
-  {
-    '@id': '/api/product_informations/2',
-    id: 2,
-    code: 'BREAD',
-    productName: 'Brot',
-  },
-]
+type CreateShoppingListEntryBody = {
+  shoppingList: string
+  productInformation: string
+  quantity: number
+  addedBy?: string
+  acquired?: boolean
+}
 
-const shoppingLists = () =>
+type UpdateShoppingListEntryBody = {
+  productInformation?: string
+  quantity?: number
+  addedBy?: string
+  acquired?: boolean
+}
+
+const getMockShoppingLists = () =>
   shoppingListCollections.flatMap((collection) =>
-    (collection.shoppingLists ?? []).filter((item) => typeof item === 'object'),
+    (collection.shoppingLists ?? []).filter((shoppingList) => typeof shoppingList === 'object'),
   )
 
-const shoppingListEntries = () =>
-  shoppingLists().flatMap((list) =>
-    (list.shoppingListEntries ?? []).filter((item) => typeof item === 'object'),
+const getMockShoppingListEntries = () =>
+  getMockShoppingLists().flatMap((shoppingList) =>
+    (shoppingList.shoppingListEntries ?? []).filter(
+      (shoppingListEntry) => typeof shoppingListEntry === 'object',
+    ),
   )
 
 export const shoppingListHandlers = [
-  http.get(apiPath('/api'), () => {
-    return HttpResponse.json({
-      shoppingListCollection: SHOPPING_LIST_COLLECTIONS_ENDPOINT,
-      shoppingList: SHOPPING_LISTS_ENDPOINT,
-      shoppingListEntry: '/api/shopping_list_entries',
-      user: '/api/users',
-      productInformation: '/api/product_informations',
-    })
-  }),
+  http.get(matchApiPath(SHOPPING_LIST_COLLECTIONS_ENDPOINT), () =>
+    jsonCollection(shoppingListCollections),
+  ),
 
-  http.get(apiPath('/api/users'), () => {
-    return HttpResponse.json({
-      member: users,
-      totalItems: users.length,
-    })
-  }),
+  http.get(matchApiPath(`${SHOPPING_LIST_COLLECTIONS_ENDPOINT}/:id`), ({ params }) => {
+    const collectionId = Number(params.id)
+    const collection = shoppingListCollections.find(
+      (shoppingListCollection) => shoppingListCollection.id === collectionId,
+    )
 
-  http.get(apiPath('/api/product_informations'), () => {
-    return HttpResponse.json({
-      member: products,
-      totalItems: products.length,
-    })
-  }),
-
-  http.get(apiPath(SHOPPING_LIST_COLLECTIONS_ENDPOINT), () => {
-    return HttpResponse.json({
-      member: shoppingListCollections,
-      totalItems: shoppingListCollections.length,
-    })
-  }),
-
-  http.get(apiPath(`${SHOPPING_LIST_COLLECTIONS_ENDPOINT}/:id`), ({ params }) => {
-    const item = shoppingListCollections.find((entry) => entry.id === Number(params.id))
-
-    if (!item) {
-      return HttpResponse.json({ detail: 'Not found' }, { status: 404 })
+    if (!collection) {
+      return jsonNotFound('ShoppingListCollection')
     }
 
-    return HttpResponse.json(item)
+    return HttpResponse.json(collection)
   }),
 
-  http.post(apiPath(SHOPPING_LIST_COLLECTIONS_ENDPOINT), async ({ request }) => {
-    const body = (await request.json()) as {
-      name: string
-      description?: string | null
-      owner: string
-    }
-    const id = Math.max(0, ...shoppingListCollections.map((collection) => collection.id ?? 0)) + 1
+  http.post(matchApiPath(SHOPPING_LIST_COLLECTIONS_ENDPOINT), async ({ request }) => {
+    const body = (await request.json()) as CreateShoppingListCollectionBody
+    const collectionId = nextNumericId(shoppingListCollections)
 
-    const created = {
-      '@id': `${SHOPPING_LIST_COLLECTIONS_ENDPOINT}/${id}`,
-      id,
+    const createdCollection = {
+      '@id': `${SHOPPING_LIST_COLLECTIONS_ENDPOINT}/${collectionId}`,
+      id: collectionId,
       name: body.name,
       description: body.description ?? null,
       owner: body.owner,
       shoppingLists: [],
     }
 
-    shoppingListCollections.push(created)
+    shoppingListCollections.push(createdCollection)
 
-    return HttpResponse.json(created, { status: 201 })
+    return HttpResponse.json(createdCollection, { status: 201 })
   }),
 
-  http.get(apiPath(SHOPPING_LISTS_ENDPOINT), () => {
-    const items = shoppingLists()
+  http.get(matchApiPath(SHOPPING_LISTS_ENDPOINT), () => jsonCollection(getMockShoppingLists())),
 
-    return HttpResponse.json({
-      member: items,
-      totalItems: items.length,
-    })
-  }),
+  http.get(matchApiPath(`${SHOPPING_LISTS_ENDPOINT}/:id`), ({ params }) => {
+    const shoppingListId = Number(params.id)
+    const shoppingList = getMockShoppingLists().find((list) => list.id === shoppingListId)
 
-  http.get(apiPath(`${SHOPPING_LISTS_ENDPOINT}/:id`), ({ params }) => {
-    const item = shoppingLists().find((entry) => entry.id === Number(params.id))
-
-    if (!item) {
-      return HttpResponse.json({ detail: 'Not found' }, { status: 404 })
+    if (!shoppingList) {
+      return jsonNotFound('ShoppingList')
     }
 
-    return HttpResponse.json(item)
+    return HttpResponse.json(shoppingList)
   }),
 
-  http.post(apiPath(SHOPPING_LISTS_ENDPOINT), async ({ request }) => {
-    const body = (await request.json()) as {
-      name: string
-      shoppingListCollection?: string
-    }
-    const id = Math.max(0, ...shoppingLists().map((list) => list.id ?? 0)) + 1
+  http.post(matchApiPath(SHOPPING_LISTS_ENDPOINT), async ({ request }) => {
+    const body = (await request.json()) as CreateShoppingListBody
+    const shoppingListId = nextNumericId(getMockShoppingLists())
     const collection = shoppingListCollections.find(
-      (item) => item['@id'] === body.shoppingListCollection,
+      (shoppingListCollection) =>
+        shoppingListCollection['@id'] === body.shoppingListCollection,
     )
 
-    const created = {
-      '@id': `${SHOPPING_LISTS_ENDPOINT}/${id}`,
-      id,
+    const createdShoppingList = {
+      '@id': `${SHOPPING_LISTS_ENDPOINT}/${shoppingListId}`,
+      id: shoppingListId,
       name: body.name,
       shoppingListEntries: [],
     }
 
     if (collection) {
-      collection.shoppingLists = [created, ...(collection.shoppingLists ?? [])]
+      collection.shoppingLists = [createdShoppingList, ...(collection.shoppingLists ?? [])]
     }
 
-    return HttpResponse.json(created, { status: 201 })
+    return HttpResponse.json(createdShoppingList, { status: 201 })
   }),
 
-  http.post(apiPath(SHOPPING_LIST_ENTRIES_ENDPOINT), async ({ request }) => {
-    const body = (await request.json()) as {
-      shoppingList: string
-      productInformation: string
-      quantity: number
-      addedBy?: string
-      acquired?: boolean
-    }
-    const id = Math.max(0, ...shoppingListEntries().map((entry) => entry.id ?? 0)) + 1
-    const list = shoppingLists().find((item) => item['@id'] === body.shoppingList)
-    const product = products.find((item) => item['@id'] === body.productInformation)
-    const user = users.find((item) => item['@id'] === body.addedBy)
+  http.post(matchApiPath(SHOPPING_LIST_ENTRIES_ENDPOINT), async ({ request }) => {
+    const body = (await request.json()) as CreateShoppingListEntryBody
+    const shoppingListEntryId = nextNumericId(getMockShoppingListEntries())
+    const shoppingList = getMockShoppingLists().find((list) => list['@id'] === body.shoppingList)
+    const product = mockProductInformation.find(
+      (productInformation) => productInformation['@id'] === body.productInformation,
+    )
+    const user = mockUsers.find((mockUser) => mockUser['@id'] === body.addedBy)
 
-    const created = {
-      '@id': `${SHOPPING_LIST_ENTRIES_ENDPOINT}/${id}`,
-      id,
+    const createdShoppingListEntry = {
+      '@id': `${SHOPPING_LIST_ENTRIES_ENDPOINT}/${shoppingListEntryId}`,
+      id: shoppingListEntryId,
       productInformation: product ?? body.productInformation,
       addedBy: user ?? body.addedBy ?? null,
       acquired: body.acquired ?? false,
       quantity: body.quantity,
     }
 
-    if (list) {
-      list.shoppingListEntries = [created, ...(list.shoppingListEntries ?? [])]
+    if (shoppingList) {
+      shoppingList.shoppingListEntries = [
+        createdShoppingListEntry,
+        ...(shoppingList.shoppingListEntries ?? []),
+      ]
     }
 
-    return HttpResponse.json(created, { status: 201 })
+    return HttpResponse.json(createdShoppingListEntry, { status: 201 })
   }),
 
-  http.patch(apiPath(`${SHOPPING_LIST_ENTRIES_ENDPOINT}/:id`), async ({ params, request }) => {
-    const body = (await request.json()) as {
-      productInformation?: string
-      quantity?: number
-      addedBy?: string
-      acquired?: boolean
-    }
-    const entry = shoppingListEntries().find((item) => item.id === Number(params.id))
+  http.patch(
+    matchApiPath(`${SHOPPING_LIST_ENTRIES_ENDPOINT}/:id`),
+    async ({ params, request }) => {
+      const body = (await request.json()) as UpdateShoppingListEntryBody
+      const shoppingListEntryId = Number(params.id)
+      const shoppingListEntry = getMockShoppingListEntries().find(
+        (entry) => entry.id === shoppingListEntryId,
+      )
 
-    if (!entry) {
-      return HttpResponse.json({ detail: 'Not found' }, { status: 404 })
-    }
+      if (!shoppingListEntry) {
+        return jsonNotFound('ShoppingListEntry')
+      }
 
-    if (typeof body.acquired === 'boolean') entry.acquired = body.acquired
-    if (typeof body.quantity === 'number') entry.quantity = body.quantity
-    if (body.productInformation) {
-      entry.productInformation =
-        products.find((item) => item['@id'] === body.productInformation) ?? body.productInformation
-    }
-    if (body.addedBy) {
-      entry.addedBy = users.find((item) => item['@id'] === body.addedBy) ?? body.addedBy
-    }
+      if (typeof body.acquired === 'boolean') shoppingListEntry.acquired = body.acquired
+      if (typeof body.quantity === 'number') shoppingListEntry.quantity = body.quantity
+      if (body.productInformation) {
+        shoppingListEntry.productInformation =
+          mockProductInformation.find(
+            (productInformation) => productInformation['@id'] === body.productInformation,
+          ) ?? body.productInformation
+      }
+      if (body.addedBy) {
+        shoppingListEntry.addedBy =
+          mockUsers.find((mockUser) => mockUser['@id'] === body.addedBy) ?? body.addedBy
+      }
 
-    return HttpResponse.json(entry)
-  }),
+      return HttpResponse.json(shoppingListEntry)
+    },
+  ),
 
-  http.delete(apiPath(`${SHOPPING_LIST_ENTRIES_ENDPOINT}/:id`), ({ params }) => {
-    for (const list of shoppingLists()) {
-      const entries = list.shoppingListEntries ?? []
+  http.delete(matchApiPath(`${SHOPPING_LIST_ENTRIES_ENDPOINT}/:id`), ({ params }) => {
+    const shoppingListEntryId = Number(params.id)
+
+    for (const shoppingList of getMockShoppingLists()) {
+      const entries = shoppingList.shoppingListEntries ?? []
       const nextEntries = entries.filter(
-        (entry) => typeof entry !== 'object' || entry.id !== Number(params.id),
+        (entry) => typeof entry !== 'object' || entry.id !== shoppingListEntryId,
       )
 
       if (nextEntries.length !== entries.length) {
-        list.shoppingListEntries = nextEntries
+        shoppingList.shoppingListEntries = nextEntries
         return new HttpResponse(null, { status: 204 })
       }
     }
 
-    return HttpResponse.json({ detail: 'Not found' }, { status: 404 })
+    return jsonNotFound('ShoppingListEntry')
   }),
 ]

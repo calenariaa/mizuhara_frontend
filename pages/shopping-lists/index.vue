@@ -3,16 +3,15 @@ import type { ShoppingListCollection } from '@/types/api/shoppingList/shoppingLi
 import type { User } from '@/types/api/users/user'
 
 import { useI18n, useLocalePath } from '#imports'
+import { useBackendReconnect, useMockApiMode } from '@/composables/api/useMockApi'
 import { shoppingListCollectionService } from '@/modules/shoppingList/services/shoppingListCollectionService'
 import { userService } from '@/modules/user/services/userService'
 import { getIri, getNumericIdFromIri } from '@/services/resource/iri'
 
 const { t } = useI18n()
 const localePath = useLocalePath()
-const mockApiMode = useState<'off' | 'manual' | 'fallback'>('mockApiMode', () => 'off')
-const nuxtApp = useNuxtApp() as unknown as {
-  $retryBackendConnection?: () => Promise<boolean>
-}
+const mockApiMode = useMockApiMode()
+const { retryBackendConnection } = useBackendReconnect()
 
 const collections = ref<ShoppingListCollection[]>([])
 const users = ref<User[]>([])
@@ -84,7 +83,7 @@ const loadCollections = async (): Promise<void> => {
 
 const refreshCollections = async (): Promise<void> => {
   if (mockApiMode.value === 'fallback') {
-    await nuxtApp.$retryBackendConnection?.()
+    await retryBackendConnection()
   }
 
   await loadCollections()

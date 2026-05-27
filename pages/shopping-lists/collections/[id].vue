@@ -6,23 +6,13 @@ import { useI18n, useLocalePath } from '#imports'
 import AppBreadcrumbs from '@/components/AppBreadcrumbs.vue'
 import { shoppingListCollectionService } from '@/modules/shoppingList/services/shoppingListCollectionService'
 import { shoppingListService } from '@/modules/shoppingList/services/shoppingListService'
+import { getIri, getNumericIdFromIri } from '@/services/resource/iri'
 
-type HasIri = { '@id'?: string }
-
-const getIri = (entity: HasIri | null): string => entity?.['@id'] ?? ''
-
-const numericIdFromIri = (iri: string): number | null => {
-  const match = iri.match(/\/(\d+)(?:\/)?$/)
-  if (!match) return null
-  const n = Number(match[1])
-  return Number.isFinite(n) ? n : null
-}
-
-const resolveListId = (l: ShoppingList): number | null => {
-  if (typeof l.id === 'number') return l.id
-  const iri = getIri(l)
+const resolveListId = (shoppingList: ShoppingList): number | null => {
+  if (typeof shoppingList.id === 'number') return shoppingList.id
+  const iri = getIri(shoppingList)
   if (!iri) return null
-  return numericIdFromIri(iri)
+  return getNumericIdFromIri(iri)
 }
 
 const route = useRoute()
@@ -45,11 +35,14 @@ const load = async (): Promise<void> => {
   createListError.value = null
 
   try {
-    const c = await shoppingListCollectionService().getById(collectionId.value)
-    collection.value = c
+    const loadedCollection = await shoppingListCollectionService().getById(collectionId.value)
+    collection.value = loadedCollection
 
-    const raw = c.shoppingLists ?? []
-    lists.value = raw.filter((x): x is ShoppingList => typeof x === 'object' && x !== null)
+    const collectionShoppingLists = loadedCollection.shoppingLists ?? []
+    lists.value = collectionShoppingLists.filter(
+      (shoppingList): shoppingList is ShoppingList =>
+        typeof shoppingList === 'object' && shoppingList !== null,
+    )
   } catch (err) {
     error.value = err instanceof Error ? err.message : t('errors.unknown')
     collection.value = null

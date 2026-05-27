@@ -6,39 +6,47 @@ import type { User } from '@/types/api/users/user'
 
 import { useI18n, useLocalePath } from '#imports'
 import AppBreadcrumbs from '@/components/AppBreadcrumbs.vue'
+import { PRODUCT_INFORMATIONS_ENDPOINT } from '@/modules/catalog/services/endpoints'
 import { productInformationService } from '@/modules/catalog/services/productInformationService'
+import {
+  SHOPPING_LIST_ENTRIES_ENDPOINT,
+  SHOPPING_LISTS_ENDPOINT,
+} from '@/modules/shoppingList/services/endpoints'
 import { shoppingListCollectionService } from '@/modules/shoppingList/services/shoppingListCollectionService'
 import { shoppingListEntryService } from '@/modules/shoppingList/services/shoppingListEntryService'
 import { shoppingListService } from '@/modules/shoppingList/services/shoppingListService'
+import { USERS_ENDPOINT } from '@/modules/user/services/endpoints'
 import { userService } from '@/modules/user/services/userService'
+import { getIri, type HasIri } from '@/services/resource/iri'
 
 const route = useRoute()
 const { t } = useI18n()
 
 const collectionId = computed(() => {
-  const raw = route.params.collectionId
-  const value = Array.isArray(raw) ? raw[0] : raw
-  return Number(value)
+  const routeCollectionId = route.params.collectionId
+  const collectionIdParam = Array.isArray(routeCollectionId)
+    ? routeCollectionId[0]
+    : routeCollectionId
+  return Number(collectionIdParam)
 })
 
 const collectionName = ref<string | null>(null)
 
 const loadCollection = async (): Promise<void> => {
   try {
-    const c = await shoppingListCollectionService().getById(collectionId.value)
-    collectionName.value = c.name ?? null
+    const loadedCollection = await shoppingListCollectionService().getById(collectionId.value)
+    collectionName.value = loadedCollection.name ?? null
   } catch {
     collectionName.value = null
   }
 }
 
 const listId = computed(() => {
-  const raw = route.params.listId
-  const value = Array.isArray(raw) ? raw[0] : raw
-  return Number(value)
+  const routeListId = route.params.listId
+  const listIdParam = Array.isArray(routeListId) ? routeListId[0] : routeListId
+  return Number(listIdParam)
 })
 
-type HasIri = { '@id'?: string }
 type EmbeddedUser = {
   username?: string | null
   email?: string | null
@@ -47,20 +55,18 @@ type EmbeddedUser = {
 } & HasIri
 type EmbeddedProductInformation = { productName?: string | null } & HasIri
 
-const getIri = (entity: HasIri | null | undefined): string => entity?.['@id'] ?? ''
 const entryApiPathFromEntry = (entry: ShoppingListEntry): string => {
   const iri = getIri(entry as unknown as HasIri)
   if (iri) return iri
 
-  const anyEntry = entry as unknown as { id?: number }
-  if (typeof anyEntry.id === 'number') return `/api/shopping_list_entries/${anyEntry.id}`
+  if (typeof entry.id === 'number') return `${SHOPPING_LIST_ENTRIES_ENDPOINT}/${entry.id}`
 
   throw new Error('ShoppingListEntry hat weder @id noch id')
 }
 
 const shoppingListIri = computed(() => {
   if (!list.value) return ''
-  return getIri(list.value as unknown as HasIri) || `/api/shopping_lists/${list.value.id}`
+  return getIri(list.value as unknown as HasIri) || `${SHOPPING_LISTS_ENDPOINT}/${list.value.id}`
 })
 
 const list = ref<ShoppingList | null>(null)
@@ -185,6 +191,11 @@ const productOptionLabel = (p: ProductInformation): string => {
   return maybe.productName ?? maybe.name ?? getIri(p) ?? '—'
 }
 
+const productOptionIri = (productInformation: ProductInformation): string =>
+  getIri(productInformation) || `${PRODUCT_INFORMATIONS_ENDPOINT}/${productInformation.id}`
+
+const userOptionIri = (user: User): string => getIri(user) || `${USERS_ENDPOINT}/${user.id}`
+
 const localePath = useLocalePath()
 
 const breadcrumbs = computed(() => [
@@ -203,18 +214,20 @@ const load = async (): Promise<void> => {
   addError.value = null
 
   try {
-    const [l, prodList, userList] = await Promise.all([
+    const [loadedShoppingList, productList, userList] = await Promise.all([
       shoppingListService().getById(listId.value),
       productInformationService().getAll(),
       userService().getAll(),
     ])
 
-    list.value = l
+    list.value = loadedShoppingList
 
-    const raw = (l.shoppingListEntries ?? []) as unknown[]
-    entries.value = raw.filter((x): x is ShoppingListEntry => typeof x === 'object' && x !== null)
+    const loadedShoppingListEntries = (loadedShoppingList.shoppingListEntries ?? []) as unknown[]
+    entries.value = loadedShoppingListEntries.filter(
+      (entry): entry is ShoppingListEntry => typeof entry === 'object' && entry !== null,
+    )
 
-    products.value = prodList
+    products.value = productList
     users.value = userList
     currentUserIri.value = getIri(users.value[0]) ?? ''
   } catch (err) {
@@ -350,11 +363,11 @@ const addEntry = async (): Promise<void> => {
             <select v-model="selectedProductIri" class="select" :disabled="adding">
               <option value="">{{ t('shoppingLists.list.addEntry.productPlaceholder') }}</option>
               <option
-                v-for="p in products"
-                :key="getIri(p) || String((p as any).id)"
-                :value="getIri(p) || `/api/product_informations/${(p as any).id}`"
+                v-for="productInformation in products"
+                :key="productOptionIri(productInformation)"
+                :value="productOptionIri(productInformation)"
               >
-                {{ productOptionLabel(p) }}
+                {{ productOptionLabel(productInformation) }}
               </option>
             </select>
           </label>
@@ -377,11 +390,11 @@ const addEntry = async (): Promise<void> => {
             <select v-model="currentUserIri" class="select" :disabled="adding">
               <option value="">—</option>
               <option
-                v-for="u in users"
-                :key="getIri(u) || String((u as any).id)"
-                :value="getIri(u)"
+                v-for="user in users"
+                :key="userOptionIri(user)"
+                :value="userOptionIri(user)"
               >
-                {{ getUserLabel(u) }}
+                {{ getUserLabel(user) }}
               </option>
             </select>
           </label>
@@ -455,11 +468,11 @@ const addEntry = async (): Promise<void> => {
                   <select v-else v-model="editProductIri" class="select" :disabled="savingEdit">
                     <option value="">—</option>
                     <option
-                      v-for="p in products"
-                      :key="getIri(p) || String((p as any).id)"
-                      :value="getIri(p) || `/api/product_informations/${(p as any).id}`"
+                      v-for="productInformation in products"
+                      :key="productOptionIri(productInformation)"
+                      :value="productOptionIri(productInformation)"
                     >
-                      {{ productOptionLabel(p) }}
+                      {{ productOptionLabel(productInformation) }}
                     </option>
                   </select>
                 </td>
@@ -485,11 +498,11 @@ const addEntry = async (): Promise<void> => {
                   <select v-else v-model="editAddedByIri" class="select" :disabled="savingEdit">
                     <option value="">—</option>
                     <option
-                      v-for="u in users"
-                      :key="getIri(u) || String((u as any).id)"
-                      :value="getIri(u) || `/api/users/${(u as any).id}`"
+                      v-for="user in users"
+                      :key="userOptionIri(user)"
+                      :value="userOptionIri(user)"
                     >
-                      {{ getUserLabel(u) }}
+                      {{ getUserLabel(user) }}
                     </option>
                   </select>
                 </td>

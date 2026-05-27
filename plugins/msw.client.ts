@@ -1,6 +1,8 @@
+import { useMockApiMode } from '@/composables/api/useMockApi'
+
 export default defineNuxtPlugin(async () => {
   const config = useRuntimeConfig()
-  const mockApiMode = useState<'off' | 'manual' | 'fallback'>('mockApiMode', () => 'off')
+  const mockApiMode = useMockApiMode()
   let workerApi: Awaited<typeof import('@/shared/mocks/browser')>['worker'] | null = null
 
   const apiEntrypoint = `${String(config.public.apiBase).replace(/\/$/, '')}/api`

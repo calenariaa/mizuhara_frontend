@@ -9,18 +9,22 @@ export function shoppingListCollectionService() {
 
   return {
     async getAll(): Promise<ShoppingListCollection[]> {
-      const data = await getCollection<ShoppingListCollection>(SHOPPING_LIST_COLLECTIONS_ENDPOINT)
-      return data.items
+      const collectionResult = await getCollection<ShoppingListCollection>(
+        SHOPPING_LIST_COLLECTIONS_ENDPOINT,
+      )
+      return collectionResult.items
     },
 
     async getById(id: number): Promise<ShoppingListCollection> {
       return getItem<ShoppingListCollection>(`${SHOPPING_LIST_COLLECTIONS_ENDPOINT}/${id}`)
     },
 
-    async create(data: CreateShoppingListCollectionRequest): Promise<ShoppingListCollection> {
+    async create(
+      collectionRequest: CreateShoppingListCollectionRequest,
+    ): Promise<ShoppingListCollection> {
       return post<ShoppingListCollection, CreateShoppingListCollectionRequest>(
         SHOPPING_LIST_COLLECTIONS_ENDPOINT,
-        data,
+        collectionRequest,
       )
     },
   }
