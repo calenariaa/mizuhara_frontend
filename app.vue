@@ -29,17 +29,16 @@ const reconnectBackend = async (): Promise<void> => {
 useHead(() => ({
   title: t('app.title'),
   meta: [{ name: 'description', content: t('app.description') }],
+  bodyAttrs: {
+    class: mockApiMode.value !== 'off' ? 'hasMockBanner' : '',
+  },
 }))
 </script>
 
 <template>
   <div v-if="mockApiMode !== 'off'" class="mockBanner" role="status">
     <span>
-      {{
-        mockApiMode === 'fallback'
-          ? t('mockApi.fallback')
-          : t('mockApi.manual')
-      }}
+      {{ mockApiMode === 'fallback' ? t('mockApi.fallback') : t('mockApi.manual') }}
       <span v-if="reconnectFailed">{{ t('mockApi.reconnectFailed') }}</span>
     </span>
 
@@ -63,6 +62,7 @@ useHead(() => ({
   position: sticky;
   top: 0;
   z-index: 1000;
+  min-height: 54px;
   padding: 10px 16px;
   border-bottom: 1px solid var(--color-border);
   background: #fff7ed;
@@ -75,6 +75,20 @@ useHead(() => ({
   gap: 12px;
   flex-wrap: wrap;
   text-align: center;
+}
+
+:global(body.hasMockBanner) {
+  --mock-banner-offset: 54px;
+}
+
+@media (max-width: 640px) {
+  .mockBanner {
+    min-height: 76px;
+  }
+
+  :global(body.hasMockBanner) {
+    --mock-banner-offset: 76px;
+  }
 }
 
 .mockReconnect {

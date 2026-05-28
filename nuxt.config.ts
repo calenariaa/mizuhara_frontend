@@ -13,7 +13,7 @@ export default defineNuxtConfig({
   app: {
     head: {
       meta: [{ name: 'theme-color', content: '#c084fc' }],
-      link: [{ rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }],
+      link: [{ rel: 'icon', type: 'image/png', href: '/mizuharaIcon.png' }],
     },
   },
   i18n: {

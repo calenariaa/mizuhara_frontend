@@ -24,6 +24,10 @@
       "openMenu": "Open menu",
       "language": "Language",
       "toggleTheme": "Toggle dark mode"
+    },
+    "search": {
+      "label": "Search",
+      "placeholder": "Search in Mizuhara..."
     }
   },
   "home": {
@@ -34,10 +38,80 @@
       "eyebrow": "Welcome to Mizuhara",
       "title": "A home dashboard for everyday life",
       "text": "Mizuhara collects small tools for household tasks, planning, and shared organization in one place.",
-        "makers": "It is built by Kira and Misha, two developers who wanted to make their own lives a little easier.",
-        "opensource": "The project is open source. Ideas, improvements, and feedback are welcome. Have fun using and shaping it.",
-        "hide": "Hide note"
+      "makers": "It is built by Kira and Misha, two developers who wanted to make their own lives a little easier.",
+      "opensource": "The project is open source. Ideas, improvements, and feedback are welcome. Have fun using and shaping it.",
+      "hide": "Hide note"
+    },
+    "welcome": {
+      "eyebrow": "Good morning, Kira",
+      "title": "Welcome back!",
+      "subtitle": "Here is your overview for today. Everything in sight, all in one place.",
+      "quickAdd": "Quick add",
+      "customize": "Customize"
+    },
+    "weather": {
+      "eyebrow": "Weather in Solingen",
+      "state": "Partly cloudy",
+      "details": "Show details"
+    },
+    "overview": {
+      "tasks": {
+        "eyebrow": "Today",
+        "title": "Your next tasks",
+        "link": "Show all tasks"
       },
+      "shopping": {
+        "eyebrow": "Shopping list",
+        "subtitle": "{count} open items",
+        "newEntry": "New entry...",
+        "link": "Go to shopping list"
+      },
+      "week": {
+        "eyebrow": "Weekly plan",
+        "subtitle": "This week",
+        "today": "Today, Wednesday",
+        "event": "Clean apartment",
+        "link": "Go to weekly plan"
+      }
+    },
+    "quickAccess": {
+      "title": "Quick access",
+      "subtitle": "Your most important modules at a glance",
+      "items": {
+        "shopping": {
+          "title": "Shopping",
+          "subtitle": "Lists & planning"
+        },
+        "inventory": {
+          "title": "Inventory",
+          "subtitle": "Manage supplies"
+        },
+        "recipes": {
+          "title": "Recipes",
+          "subtitle": "Discover & plan"
+        },
+        "tasks": {
+          "title": "Tasks",
+          "subtitle": "Organize"
+        },
+        "household": {
+          "title": "Household",
+          "subtitle": "Plans & routines"
+        },
+        "finance": {
+          "title": "Finance",
+          "subtitle": "Keep an overview"
+        },
+        "smartHome": {
+          "title": "Smart Home",
+          "subtitle": "Control devices"
+        },
+        "documents": {
+          "title": "Documents",
+          "subtitle": "Manage essentials"
+        }
+      }
+    },
     "dashboard": {
       "title": "Current status",
       "subtitle": "A quick overview of open lists, tasks, and users. Click a card to open the related module.",
@@ -85,7 +159,19 @@
     },
     "items": {
       "home": "Home",
+      "dashboard": "Dashboard",
+      "shopping": "Shopping",
+      "inventory": "Inventory",
+      "recipes": "Recipes",
+      "planning": "Planning",
       "tasks": "Tasks",
+      "household": "Household",
+      "finance": "Finance",
+      "documents": "Documents",
+      "smartHome": "Smart Home",
+      "devices": "Devices",
+      "family": "Family",
+      "reminders": "Reminders",
       "users": "Users",
       "shoppingLists": "Shopping lists"
     }

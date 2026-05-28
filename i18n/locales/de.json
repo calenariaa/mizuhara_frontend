@@ -21,6 +21,10 @@
       "openMenu": "Menü öffnen",
       "language": "Sprache",
       "toggleTheme": "Dark Mode umschalten"
+    },
+    "search": {
+      "label": "Suche",
+      "placeholder": "Suche in Mizuhara..."
     }
   },
   "home": {
@@ -34,6 +38,76 @@
       "makers": "Gebaut wurde es von Kira und Misha, zwei Entwickler:innen, die ihr eigenes Leben ein bisschen einfacher machen wollten.",
       "opensource": "Das Projekt ist Open Source. Ideen, Verbesserungen und Feedback sind willkommen. Viel Spaß beim Nutzen und Mitgestalten.",
       "hide": "Hinweis ausblenden"
+    },
+    "welcome": {
+      "eyebrow": "Guten Morgen, Kira",
+      "title": "Willkommen zurück!",
+      "subtitle": "Hier ist dein Überblick für heute. Alles im Blick, alles an einem Ort.",
+      "quickAdd": "Schnell hinzufügen",
+      "customize": "Anpassen"
+    },
+    "weather": {
+      "eyebrow": "Wetter in Solingen",
+      "state": "Leicht bewölkt",
+      "details": "Details anzeigen"
+    },
+    "overview": {
+      "tasks": {
+        "eyebrow": "Heute",
+        "title": "Deine nächsten Aufgaben",
+        "link": "Alle Aufgaben anzeigen"
+      },
+      "shopping": {
+        "eyebrow": "Einkaufsliste",
+        "subtitle": "{count} offene Einträge",
+        "newEntry": "Neuer Eintrag...",
+        "link": "Zur Einkaufsliste"
+      },
+      "week": {
+        "eyebrow": "Wochenplan",
+        "subtitle": "Diese Woche",
+        "today": "Heute, Mittwoch",
+        "event": "Wohnung aufräumen",
+        "link": "Zum Wochenplan"
+      }
+    },
+    "quickAccess": {
+      "title": "Schnellzugriff",
+      "subtitle": "Deine wichtigsten Module auf einen Blick",
+      "items": {
+        "shopping": {
+          "title": "Einkauf",
+          "subtitle": "Listen & Planung"
+        },
+        "inventory": {
+          "title": "Vorräte",
+          "subtitle": "Bestände verwalten"
+        },
+        "recipes": {
+          "title": "Rezepte",
+          "subtitle": "Entdecken & Planen"
+        },
+        "tasks": {
+          "title": "Aufgaben",
+          "subtitle": "Organisieren"
+        },
+        "household": {
+          "title": "Haushalt",
+          "subtitle": "Pläne & Routinen"
+        },
+        "finance": {
+          "title": "Finanzen",
+          "subtitle": "Übersicht behalten"
+        },
+        "smartHome": {
+          "title": "Smart Home",
+          "subtitle": "Geräte steuern"
+        },
+        "documents": {
+          "title": "Dokumente",
+          "subtitle": "Wichtiges verwalten"
+        }
+      }
     },
     "dashboard": {
       "title": "Aktueller Stand",
@@ -82,7 +156,19 @@
     },
     "items": {
       "home": "Start",
+      "dashboard": "Dashboard",
+      "shopping": "Einkauf",
+      "inventory": "Vorräte",
+      "recipes": "Rezepte",
+      "planning": "Planung",
       "tasks": "Aufgaben",
+      "household": "Haushalt",
+      "finance": "Finanzen",
+      "documents": "Dokumente",
+      "smartHome": "Smart Home",
+      "devices": "Geräte",
+      "family": "Familie",
+      "reminders": "Erinnerungen",
       "users": "User",
       "shoppingLists": "Einkaufslisten"
     }

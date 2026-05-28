@@ -7,7 +7,7 @@ export default defineNuxtPlugin(async () => {
 
   const apiEntrypoint = `${String(config.public.apiBase).replace(/\/$/, '')}/api`
 
-  const checkBackend = async (): Promise<void> => {
+  const checkBackend = async (): Promise<boolean> => {
     const controller = new AbortController()
     const timeoutId = window.setTimeout(
       () => controller.abort(),
@@ -20,6 +20,8 @@ export default defineNuxtPlugin(async () => {
         signal: controller.signal,
         cache: 'no-store',
       })
+
+      return true
     } finally {
       window.clearTimeout(timeoutId)
     }
@@ -43,7 +45,8 @@ export default defineNuxtPlugin(async () => {
     }
 
     try {
-      await checkBackend()
+      const connected = await checkBackend()
+      if (!connected) return false
       mockApiMode.value = 'off'
       return true
     } catch {
